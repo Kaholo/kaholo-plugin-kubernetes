@@ -5,12 +5,18 @@ Kubernetes API plugin for Kaholo.
 To connect to your Kubernetes cluster from this plugin you need to create a service account with sufficent permmisions to Kaholo. You need to do the following steps in order to make this plugin work:
 1. Create a new service account for kaholo on your cluster. You can see more information on creating service accounts [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/).
     To do so with kubectl you can write the following command:
-    * kubectl create serviceaccount kaholo-sa
+    ```sh
+    kubectl create serviceaccount kaholo-sa
+    ```
 2. Bind roles with sufficent permmision for the methods you want to use in the plugin.
     Each method in the plugin specifies what permmisions it needs.
 3. Get you service account authentication token. In order to so with kubectl you can enter the following commands:
-    * kubectl describe sa kaholo-sa -> this will print the service account details. Save token name for later(kaholo-sa-token-abcde for example)
-    * kubectl describe secret {token-name}(kaholo-sa-token-abcde) -> This will print your token secret in base64 encoding
+    ```sh
+    # this will print the service account details. Save token name for later(kaholo-sa-token-XXXXX for example)
+    kubectl describe sa kaholo-sa
+    # This will print your token secret in base64 encoding
+    kubectl describe secret kaholo-sa-token-XXXXX
+    ```
     * Decode token secret with base64 decoder. You can do so [here](https://www.base64decode.org/).
 4. Save decoded secret in the kaholo vault.
 5. Define the token setting in the plugin as the decoded secret from the vault.
@@ -26,7 +32,7 @@ Create or update resources in Kubernetes. Update means that if resources with th
 
 ### Service Account Permmisions
 This method might need different permmisions for different apply actions, based on what resources it tries to apply, and in what namespace.
-You can bind the role cluster-admin in the namespace you are working to give the service account full access to this namespace.
+You can bind the role `cluster-admin` in the namespace you are working to give the service account full access to this namespace.
 
 ### Parameters
 1. Endpoint URL - The URL the cluster to connect to. If not provided will use endpoint URL from settings.
@@ -40,7 +46,7 @@ Deletes the namespace specified entirely, including all the resources inside.
 
 ### Service Account Permmisions
 For this method to work the service account needs permmisions to delete namespaces resources in the kube-system namespace.
-A role you can bind to make this work is cluster-admin in the kube-system namespace.
+A role you can bind to make this work is `cluster-admin` in the kube-system namespace.
 
 ### Parameters
 1. Endpoint URL - The URL the cluster to connect to. If not provided will use endpoint URL from settings.
