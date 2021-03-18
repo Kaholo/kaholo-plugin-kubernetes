@@ -10,7 +10,7 @@ To connect to your Kubernetes cluster from this plugin you need to create a serv
     Each method in the plugin specifies what permmisions it needs.
 3. Get you service account authentication token. In order to so with kubectl you can enter the following commands:
     * kubectl describe sa kaholo-sa -> this will print the service account details. Save token name for later(kaholo-sa-token-abcde for example)
-    * kubectl describe secret <token-name>(kaholo-sa-token-abcde) -> This will print your token secret in base64 encoding
+    * kubectl describe secret {token-name}(kaholo-sa-token-abcde) -> This will print your token secret in base64 encoding
     * Decode token secret with base64 decoder. You can do so [here](https://www.base64decode.org/).
 4. Save decoded secret in the kaholo vault.
 5. Define the token setting in the plugin as the decoded secret from the vault.
