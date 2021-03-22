@@ -77,9 +77,6 @@ async function apply(action, settings){
       created.push(response.body);
     }
   }
-  if (created.length === 1){
-    return created[0];
-  }
   return created;
 }
 
@@ -91,8 +88,7 @@ async function deleteNamespace(action, settings){
 
   const client = getClient(action.params, settings, false);
   try {
-    await client.deleteNamespace(namespaceStr, {});
-    return "success";
+    return (await client.deleteNamespace(namespaceStr, {})).body;
   }
   catch (err){
     throw "can't delete namespace";
