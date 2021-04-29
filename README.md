@@ -22,10 +22,10 @@ To connect to your Kubernetes cluster from this plugin you need to create a serv
 5. Define the token setting in the plugin as the decoded secret from the vault.
 
 ## Settings
-1. Endpoint URL - The URL of the default cluster to connect to.
-2. Certificate Authority - The CA certification of the default cluster.
-3. Service Account Token - The token of the default kaholo service account configured on the default cluster.
-4. Service Account Name - The name of the default kaholo service account. 
+1. Endpoint URL (String) **Optional** - The URL of the default cluster to connect to.
+2. Certificate Authority (Vault) **Optional** - The CA certification of the default cluster.
+3. Service Account Token (Vault) **Optional** - The token of the default kaholo service account configured on the default cluster.
+4. Service Account Name (String) **Optional** - The name of the default kaholo service account. 
 
 ## Method Apply
 Create or update resources in Kubernetes. Update means that if resources with the same name as the ones specified, exist, they will be deleted, and re-created with the settings described in the YML File. Mimics the kubectl apply method.
@@ -35,22 +35,23 @@ This method might need different permmisions for different apply actions, based 
 You can bind the role `cluster-admin` in the namespace you are working to give the service account full access to this namespace.
 
 ### Parameters
-1. Endpoint URL - The URL the cluster to connect to. If not provided will use endpoint URL from settings.
-2. Certificate Authority - The CA certification of the cluster.
-3. Service Account Token - The token of the service account that's configured on the required cluster.
-4. Service Account Name - The name of the kaholo service account. 
-5. Yaml File Path(required) - Path to a YML file with info on the Kubernetes resources you want to create or update.
+1. Endpoint URL (String) **Optional** - The URL the cluster to connect to. If not provided will use endpoint URL from settings.
+2. Certificate Authority (Vault) **Optional** - The CA certification of the cluster.
+3. Service Account Token (Vault) **Optional** - The token of the service account that's configured on the required cluster.
+4. Service Account Name (String) **Optional** - The name of the kaholo service account. 
+5. Yaml File Path (String) **Required** - Path to a YML file with info on the Kubernetes resources you want to create or update.
 
-## Method Delete Namespace
-Deletes the namespace specified entirely, including all the resources inside.
+## Method Delete Object
+Delete any kubernetes object by it's name, type and namespace.
 
 ### Service Account Permmisions
-For this method to work the service account needs permmisions to delete namespaces resources in the kube-system namespace.
-A role you can bind to make this work is `cluster-admin` in the kube-system namespace.
+For this method to work the service account needs permmisions to delete the resource in the system.
 
 ### Parameters
-1. Endpoint URL - The URL the cluster to connect to. If not provided will use endpoint URL from settings.
-2. Certificate Authority - The CA certification of the cluster.
-3. Service Account Token - The token of the service account that's configured on the required cluster.
-4. Service Account Name - The name of the kaholo service account. 
-5. Namespace(required) - The namespace to delete.
+1. Endpoint URL (String) **Optional** - The URL the cluster to connect to. If not provided will use endpoint URL from settings.
+2. Certificate Authority (Vault) **Optional** - The CA certification of the cluster.
+3. Service Account Token (Vault) **Optional** - The token of the service account that's configured on the required cluster.
+4. Service Account Name (String) **Optional** - The name of the kaholo service account. 
+5. Types (Text/Array) **Required** - The type(s) of object(s) you want to delete. You can enter multiple values by seperating each with a new line.
+6. Names (Text/Array) **Required** - The name(s) of the object(s) you want to delete. You can enter multiple values by seperating each with a new line.
+7. Namespace (String) **Optional** - The namespace of the object(s) to delete. Not required if the resource is not inside a namespace, like when deleting the namespace itself or deleting a Node for example. **Required for 'namespaced' resources.**

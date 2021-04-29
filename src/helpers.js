@@ -42,68 +42,68 @@ function getConfig(params, settings){
     return kc;
 }
 
-function runDelete(client, resourceType, name, namespace){
+function getDeleteFunc(client, resourceType){
     switch(resourceType){
         case "configmaps": case "cm":
-            return client.deleteNamespacedConfigMap(name, namespace);
+            return client.deleteNamespacedConfigMap;
         case "endpoints": case "ep":
-            return client.deleteNamespacedEndpoints(name, namespace);
+            return client.deleteNamespacedEndpoints;
         case "events": case "ev":
-            return client.deleteNamespacedEvent(name, namespace);
+            return client.deleteNamespacedEvent;
         case "limitranges": case "limits":
-            return client.deleteNamespacedLimitRange(name, namespace);
+            return client.deleteNamespacedLimitRange;
         case "namespaces": case "namespace": case "ns":
-            return client.deleteNamespace(name);
+            return client.deleteNamespace;
         case "nodes": case "no":
-            return client.deleteNode(name);
+            return client.deleteNode;
         case "persistentvolumeclaims": case "pvc":
-            return client.deleteNamespacedPersistentVolumeClaim(name, namespace);
+            return client.deleteNamespacedPersistentVolumeClaim;
         case "persistentvolumes": case "pv":
-            return client.deleteNamespacedPersistentVolumeClaim(name, namespace);
+            return client.deleteNamespacedPersistentVolumeClaim;
         case "pods": case "po":
-            return client.deleteNamespacedPod(name, namespace);
+            return client.deleteNamespacedPod;
         case "podtemplates":
-            return client.deleteNamespacedPodTemplate(name, namespace);
+            return client.deleteNamespacedPodTemplate;
         case "replicationcontrollers": case "rc":
-            return client.deleteNamespacedReplicationController(name, namespace);
+            return client.deleteNamespacedReplicationController;
         case "resourcequotas": case "quota":
-            return client.deleteNamespacedResourceQuota(name, namespace);
+            return client.deleteNamespacedResourceQuota;
         case "secrets":
-            return client.deleteNamespacedSecret(name, namespace);
+            return client.deleteNamespacedSecret;
         case "serviceaccounts": case "sa":
-            return client.deleteNamespacedServiceAccount(name, namespace);
+            return client.deleteNamespacedServiceAccount;
         case "services": case "svc":
-            return client.deleteNamespacedService(name, namespace);
+            return client.deleteNamespacedService;
         case "daemonsets": case "ds":
-            return client.deleteNamespacedDaemonSet(name, namespace);
+            return client.deleteNamespacedDaemonSet;
         case "deployments": case "deploy":
-            return client.deleteNamespacedDeployment(name, namespace);
+            return client.deleteNamespacedDeployment;
         case "statefulsets": case "sts":
-            return client.deleteNamespacedStatefulSet(name, namespace);
+            return client.deleteNamespacedStatefulSet;
         case "controllerrevisions":
-            return client.deleteNamespacedControllerRevision(name, namespace);
+            return client.deleteNamespacedControllerRevision;
         case "replicasets": case "rs":
-            return client.deleteNamespacedReplicaSet(name, namespace);
+            return client.deleteNamespacedReplicaSet;
         case "ingresses": case "ing":
-            return client.deleteNamespacedIngress(name, namespace);
+            return client.deleteNamespacedIngress;
         case "networkpolicies": case "netpol":
-            return client.deleteNamespacedNetworkPolicy(name, namespace);
+            return client.deleteNamespacedNetworkPolicy;
         case "podsecuritypolicies": case "psp":
-            return client.deletePodSecurityPolicy(name);
+            return client.deletePodSecurityPolicy;
         case "clusterrolebindings":
-            return client.deleteClusterRoleBinding(name);
+            return client.deleteClusterRoleBinding;
         case "clusterroles":
-            return client.deleteClusterRole(name);
+            return client.deleteClusterRole;
         case "rolebindings":
-            return client.deleteClusterRoleBinding(name);
+            return client.deleteClusterRoleBinding;
         case "jobs":
-            return client.deleteNamespacedJob(name, namespace);
+            return client.deleteNamespacedJob;
         case "cronjobs": case "cj":
-            return client.deleteNamespacedCronJob(name, namespace);
+            return client.deleteNamespacedCronJob;
         case "storageclasses": case "sc":
-            return client.deleteStorageClass(name);
+            return client.deleteStorageClass;
         case "volumeattachments":
-            return client.deleteVolumeAttachment(name);
+            return client.deleteVolumeAttachment;
         default:
             throw "couldn't find resource type";
     }
@@ -142,16 +142,20 @@ function parseArr(arr){
     return arr.split("\n").map(line => line.trim()).filter(line => line);
 }
 
-async function runDeleteFunc(client, resourceType, name, namespace){
+async function runDeleteFunc(deleteFunc, resourceType, name, namespace){
     const deleteObj = {
         "type": resourceType,
         "name": name
     }
-    if (namespace){
-        deleteObj.namespace = namespace;
-    }
     try {
-        const res = await runDelete(client, resourceType, name, namespace);
+        let res;
+        if (namespace){
+            deleteObj.namespace = namespace;
+            res = await deleteFunc(name, namespace);
+        }
+        else {
+            res = await deleteFunc(name);
+        }
         deleteObj.result = res.body.status;
     }
     catch (err) {
@@ -168,5 +172,6 @@ module.exports = {
     getConfig,
     getClient,
     parseArr, 
-    runDeleteFunc
+    runDeleteFunc,
+    getDeleteFunc
 };

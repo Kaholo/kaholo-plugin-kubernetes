@@ -1,7 +1,7 @@
 
 const yaml = require('js-yaml');
 const fs = require('fs');
-const {getConfig, getClient, parseArr, runDeleteFunc} = require("./helpers");
+const {getConfig, getClient, parseArr, getDeleteFunc, runDeleteFunc} = require("./helpers");
 
 async function apply(action, settings){
   const yamlPath = (action.params.yamlPath || "").trim();
@@ -41,17 +41,25 @@ async function deleteObject(action, settings){
   const types = parseArr(action.params.types);
   const names = parseArr(action.params.names);
   const namespace = (action.params.namespace || "").trim();
-  if (types.length < 1){
-    throw "types was not provided";
+  if (types.length < 1 || names.length < 1){
+    throw "A required parameter wasn't passed";
   }
   const kc = getConfig(action.params, settings);
 
   const [promises, deleted, failed]  = [[],[],[]]; // initiate with empty lists
-  types.forEach((resourceType) => {
+  const deleteFuncs = types.map(resourceType => {
     const client = getClient(kc, resourceType);
+    const deleteFunc = getDeleteFunc(client, resourceType).bind(client); // we bind so call to function later will work
+    const namespaced = deleteFunc.name.includes("Namespaced")
+    if (namespaced && !namespace){
+      throw `Must specify namespace to delete object of type '${resourceType}`;
+    }
+    return {deleteFunc, resourceType, namespaced};
+  })
+  deleteFuncs.forEach(({deleteFunc, resourceType, namespaced}) => {
     names.forEach(name => {
       // to run all deletes at once
-      promises.push(runDeleteFunc(client, resourceType, name, namespace));
+      promises.push(runDeleteFunc(deleteFunc, resourceType, name, namespaced ? namespace : null));
     });
   });
   const results = (await Promise.all(promises)).filter(result => result); // remove all empty results
