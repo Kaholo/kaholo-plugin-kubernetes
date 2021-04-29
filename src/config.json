@@ -4,7 +4,7 @@
   "imgUrl": "kubernetes.png",
   "execProgram": "node",
   "main": "app.js",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Works with Kubernetes API",
   "settings":[
     { 
@@ -61,8 +61,8 @@
       ]
     },
     {
-      "name": "deleteNamespace",
-      "viewName": "Delete Namespace",
+      "name": "deleteObject",
+      "viewName": "Delete Object",
       "params": [
         { 
           "name": "endpointUrl",
@@ -83,6 +83,16 @@
           "name": "saName",
           "viewName": "Service Account Name",
           "type": "string"
+        },
+        {
+          "name": "types",
+          "viewName": "Types",
+          "type": "text"
+        },
+        {
+          "name": "names",
+          "viewName": "Names",
+          "type": "text"
         },
         {
           "name": "namespace",

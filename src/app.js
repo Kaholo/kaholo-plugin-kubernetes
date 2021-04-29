@@ -1,51 +1,7 @@
-const k8s = require('@kubernetes/client-node');
+
 const yaml = require('js-yaml');
 const fs = require('fs');
-// Constructors
-const { newClusters, newContexts, newUsers } = require('@kubernetes/client-node/dist/config_types');
-
-function getClient(params, settings, objectApi){
-  const caCert = params.caCert || settings.caCert;
-  const endpointUrl = params.endpointUrl || settings.endpointUrl;
-  const token = params.token || settings.token;
-  const saName = params.saName || settings.saName || "kaholo-sa";
-
-  if (!caCert || !endpointUrl || !token){
-    throw "not provided one of required fields";
-  }
-  // define options
-  const user = {
-    name: saName,
-    user: { token: token }
-  };
-  const cluster = {
-    cluster: {
-      "certificate-authority-data": caCert,
-      server: endpointUrl 
-    },
-    name: `${saName}-cluster`
-  };
-  const context = {
-    context: {
-      cluster: `${saName}-cluster`,
-      user: saName
-    },
-    name: `${saName}-context`
-  }; 
-  // load kubeconfig from options
-  const kc = new k8s.KubeConfig();
-  kc.loadFromOptions({
-    clusters: newClusters([cluster]),
-    contexts: newContexts([context]),
-    users: newUsers([user]),
-    currentContext: context.name,
-  });
-  // return object api or core api client
-  if (objectApi){
-    return k8s.KubernetesObjectApi.makeApiClient(kc);
-  }
-  return kc.makeApiClient(k8s.CoreV1Api);
-}
+const {getConfig, getClient, parseArr, runDeleteFunc} = require("./helpers");
 
 async function apply(action, settings){
   const yamlPath = (action.params.yamlPath || "").trim();
@@ -57,7 +13,8 @@ async function apply(action, settings){
   * Get all deployments/specs from yaml file and filter the valid ones
   */
   const specs = yaml.loadAll(fs.readFileSync(yamlPath)).filter((s) => s && s.kind && s.metadata);
-  const client = getClient(action.params, settings, true);
+  const kc = getConfig(action.params, settings);
+  const client = getClient(kc, "spec");
   const created = [];
   for (const spec of specs){
     spec.metadata.annotations = spec.metadata.annotations || {};
@@ -80,23 +37,41 @@ async function apply(action, settings){
   return created;
 }
 
-async function deleteNamespace(action, settings){  
-  const namespaceStr = (action.params.namespace || "").trim();
-  if (!namespaceStr){
-    throw "namespace was not provided";
+async function deleteObject(action, settings){  
+  const types = parseArr(action.params.types);
+  const names = parseArr(action.params.names);
+  const namespace = (action.params.namespace || "").trim();
+  if (types.length < 1){
+    throw "types was not provided";
   }
+  const kc = getConfig(action.params, settings);
 
-  const client = getClient(action.params, settings, false);
-  try {
-    return (await client.deleteNamespace(namespaceStr, {})).body;
+  const [promises, deleted, failed]  = [[],[],[]]; // initiate with empty lists
+  types.forEach((resourceType) => {
+    const client = getClient(kc, resourceType);
+    names.forEach(name => {
+      // to run all deletes at once
+      promises.push(runDeleteFunc(client, resourceType, name, namespace));
+    });
+  });
+  const results = (await Promise.all(promises)).filter(result => result); // remove all empty results
+  results.forEach(deleteObj => {
+    if (deleteObj.result !== "Failure"){
+      deleted.push(deleteObj);
+    }
+    else {
+      failed.push(deleteObj);
+    }
+  });
+  const returnVal = {deleted, failed};
+  if (failed.length > 0 || deleted.length === 0){
+    throw returnVal;
   }
-  catch (err){
-    throw "can't delete namespace";
-  } 
+  return returnVal;
 }
 
 module.exports = {
   apply,
-  deleteNamespace
+  deleteObject
 };
 

@@ -1,6 +1,6 @@
 {
   "name": "kaholo-plugin-kubernetes",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Kubernetes API plugin for kaholo",
   "main": "app.js",
   "scripts": {
@@ -9,7 +9,7 @@
   "author": "Kaholo Team(Amit Alon)",
   "license": "ISC",
   "dependencies": {
-    "@kubernetes/client-node": "^0.14.0",
+    "@kubernetes/client-node": "^0.14.3",
     "js-yaml": "^4.0.0"
   }
 }
