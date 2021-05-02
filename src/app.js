@@ -14,7 +14,7 @@ async function apply(action, settings){
   */
   const specs = yaml.loadAll(fs.readFileSync(yamlPath)).filter((s) => s && s.kind && s.metadata);
   const kc = getConfig(action.params, settings);
-  const client = getClient(kc, "spec");
+  const [_rsrc, client] = getClient(kc, "spec");
   const created = [];
   for (const spec of specs){
     spec.metadata.annotations = spec.metadata.annotations || {};
@@ -41,14 +41,15 @@ async function deleteObject(action, settings){
   const types = parseArr(action.params.types);
   const names = parseArr(action.params.names);
   const namespace = (action.params.namespace || "").trim();
-  if (types.length < 1 || names.length < 1){
-    throw "A required parameter wasn't passed";
+  if (types.length < 1){
+    throw "types was not provided";
   }
   const kc = getConfig(action.params, settings);
 
   const [promises, deleted, failed]  = [[],[],[]]; // initiate with empty lists
   const deleteFuncs = types.map(resourceType => {
-    const client = getClient(kc, resourceType);
+    const [resRsrcType, client] = getClient(kc, resourceType);
+    resourceType = resRsrcType;
     const deleteFunc = getDeleteFunc(client, resourceType).bind(client); // we bind so call to function later will work
     const namespaced = deleteFunc.name.includes("Namespaced")
     if (namespaced && !namespace){

@@ -111,7 +111,7 @@ function getDeleteFunc(client, resourceType){
 
 const apiToResourceType = [
     {api: k8s.CoreV1Api, types: ["configmaps", "cm", "endpoints", "ep", "events", "ev", 
-        "limitranges", "limits", "namespaces", "namespace", "ns", "nodes", "no", 
+        "limitranges", "limits", "namespaces", "ns", "nodes", "no", 
         "persistentvolumeclaims", "pvc", "persistentvolumes", "pv", "pods", "po", "podtemplates", 
         "replicationcontrollers", "rc", "resourcequotas", "rc", "secrets", "serviceaccounts", "sa", 
         "services", "svc"]},
@@ -127,11 +127,17 @@ const apiToResourceType = [
 ]
 
 function getClient(kc, resourceType){
-    const api = apiToResourceType.find(obj => obj.types.includes(resourceType)).api;
-    if (!api){
-        throw `couldn't find API Client for resource type '${resourceType}'.`
+    let api = apiToResourceType.find(mapObj => mapObj.types.includes(resourceType))?.api;
+    apiToResourceType.forEach(mapObj => [`${resourceType}s`, `${resourceType}es`].forEach(rsrc => {
+        if (mapObj.types.includes(rsrc)){
+            api = mapObj.api;
+            resourceType = rsrc;
+        }
+    }));
+    if (api) {
+        return [resourceType, kc.makeApiClient(api)];
     }
-    return kc.makeApiClient(api);
+    throw `Couldn't find API client for resource type '${resourceType}'`;
 }
 
 function parseArr(arr){
