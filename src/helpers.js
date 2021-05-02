@@ -128,12 +128,14 @@ const apiToResourceType = [
 
 function getClient(kc, resourceType){
     let api = apiToResourceType.find(mapObj => mapObj.types.includes(resourceType))?.api;
-    apiToResourceType.forEach(mapObj => [`${resourceType}s`, `${resourceType}es`].forEach(rsrc => {
-        if (mapObj.types.includes(rsrc)){
-            api = mapObj.api;
-            resourceType = rsrc;
-        }
-    }));
+    if (!api) {
+        apiToResourceType.forEach(mapObj => [`${resourceType}s`, `${resourceType}es`].forEach(rsrc => {
+            if (mapObj.types.includes(rsrc)){
+                api = mapObj.api;
+                resourceType = rsrc;
+            }
+        }));
+    }
     if (api) {
         return [resourceType, kc.makeApiClient(api)];
     }
