@@ -167,7 +167,7 @@ async function runDeleteFunc(deleteFunc, resourceType, name, namespace){
         deleteObj.result = res.body.status;
     }
     catch (err) {
-        if (err.body.code === 404){
+        if (err.body?.code === 404){
             return null;
         }
         deleteObj.result = "Failure";
