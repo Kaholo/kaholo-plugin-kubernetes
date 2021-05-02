@@ -171,7 +171,7 @@ async function runDeleteFunc(deleteFunc, resourceType, name, namespace){
             return null;
         }
         deleteObj.result = "Failure";
-        deleteObj.err = err;
+        deleteObj.err = JSON.stringify(err);
     }
     return deleteObj;
 }
