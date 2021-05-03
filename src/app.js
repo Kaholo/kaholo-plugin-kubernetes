@@ -1,7 +1,8 @@
 
 const yaml = require('js-yaml');
 const fs = require('fs');
-const {getConfig, getClient, parseArr, getDeleteFunc, runDeleteFunc} = require("./helpers");
+const {getConfig, parseArr, getDeleteFunc, runDeleteFunc} = require("./helpers");
+const objectApi = require('@kubernetes/client-node').KubernetesObjectApi;
 
 async function apply(action, settings){
   const yamlPath = (action.params.yamlPath || "").trim();
@@ -14,7 +15,7 @@ async function apply(action, settings){
   */
   const specs = yaml.loadAll(fs.readFileSync(yamlPath)).filter((s) => s && s.kind && s.metadata);
   const kc = getConfig(action.params, settings);
-  const [_rsrc, client] = getClient(kc, "spec");
+  const client = kc.makeApiClient(objectApi);
   const created = [];
   for (const spec of specs){
     spec.metadata.annotations = spec.metadata.annotations || {};
@@ -41,35 +42,33 @@ async function deleteObject(action, settings){
   const types = parseArr(action.params.types);
   const names = parseArr(action.params.names);
   const namespace = (action.params.namespace || "").trim();
-  if (types.length < 1){
-    throw "types was not provided";
+  if (types.length < 1 || names.length < 1){
+    throw "One of the required parameters was not passed!";
   }
   const kc = getConfig(action.params, settings);
 
   const [promises, deleted, failed]  = [[],[],[]]; // initiate with empty lists
   const deleteFuncs = types.map(resourceType => {
-    const [resRsrcType, client] = getClient(kc, resourceType);
-    resourceType = resRsrcType;
-    const deleteFunc = getDeleteFunc(client, resourceType).bind(client); // we bind so call to function later will work
+    const deleteFunc = getDeleteFunc(kc, resourceType);
     const namespaced = deleteFunc.name.includes("Namespaced")
     if (namespaced && !namespace){
       throw `Must specify namespace to delete object of type '${resourceType}`;
     }
     return {deleteFunc, resourceType, namespaced};
-  })
+  });
   deleteFuncs.forEach(({deleteFunc, resourceType, namespaced}) => {
     names.forEach(name => {
       // to run all deletes at once
       promises.push(runDeleteFunc(deleteFunc, resourceType, name, namespaced ? namespace : null));
     });
   });
-  const results = (await Promise.all(promises)).filter(result => result); // remove all empty results
+  const results = (await Promise.all(promises)); // remove all empty results
   results.forEach(deleteObj => {
-    if (deleteObj.result !== "Failure"){
-      deleted.push(deleteObj);
+    if (deleteObj.err){
+      failed.push(deleteObj);
     }
     else {
-      failed.push(deleteObj);
+      deleted.push(deleteObj);
     }
   });
   const returnVal = {deleted, failed};

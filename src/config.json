@@ -4,7 +4,7 @@
   "imgUrl": "kubernetes.png",
   "execProgram": "node",
   "main": "app.js",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "Works with Kubernetes API",
   "settings":[
     { 
