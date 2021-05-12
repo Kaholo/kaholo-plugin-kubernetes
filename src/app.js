@@ -1,8 +1,8 @@
 
 const yaml = require('js-yaml');
 const fs = require('fs');
-const {getConfig, parseArr, getDeleteFunc, runDeleteFunc} = require("./helpers");
-const objectApi = require('@kubernetes/client-node').KubernetesObjectApi;
+const {getConfig, parseArr, getDeleteFunc, runDeleteFunc, parseErr} = require("./helpers");
+const {KubernetesObjectApi, CoreV1Api} = require('@kubernetes/client-node');
 
 async function apply(action, settings){
   const yamlPath = (action.params.yamlPath || "").trim();
@@ -15,7 +15,7 @@ async function apply(action, settings){
   */
   const specs = yaml.loadAll(fs.readFileSync(yamlPath)).filter((s) => s && s.kind && s.metadata);
   const kc = getConfig(action.params, settings);
-  const client = kc.makeApiClient(objectApi);
+  const client = kc.makeApiClient(KubernetesObjectApi);
   const created = [];
   for (const spec of specs){
     spec.metadata.annotations = spec.metadata.annotations || {};
@@ -25,14 +25,24 @@ async function apply(action, settings){
       // try to get the resource, if it does not exist an error will be thrown and we will end up in the catch
       // block.
       await client.read(spec);
-      // we got the resource, so it exists, so patch it
-      const response = await client.patch(spec);
-      created.push(response.body);
     } 
     catch (err) {
       // we did not get the resource, so it does not exist, so create it
-      const response = await client.create(spec);
+      try {
+        const response = await client.create(spec);
+        created.push(response.body);
+      }
+      catch (err2) {
+        throw {error: parseErr(err2), created: created};
+      }
+    }
+    // we got the resource, so it exists, so patch it
+    try {
+      const response = await client.patch(spec);
       created.push(response.body);
+    }
+    catch (err){
+      throw {error: parseErr(err), created: created};
     }
   }
   return created;
@@ -78,8 +88,25 @@ async function deleteObject(action, settings){
   return returnVal;
 }
 
+async function getService(action, settings){
+  const {name, namespace} = action.params;
+  if (!name){
+    throw "Didn't provide service name";
+  }
+  const kc = getConfig(action.params, settings);
+  const client = kc.makeApiClient(CoreV1Api);
+  try {
+    const res = await client.readNamespacedService(name, namespace || "default");
+    return res.body;
+  }
+  catch (err){
+    throw parseErr(err);
+  }
+}
+
 module.exports = {
   apply,
-  deleteObject
+  deleteObject,
+  getService
 };
 

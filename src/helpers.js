@@ -160,19 +160,20 @@ async function runDeleteFunc(deleteFunc, resourceType, name, namespace){
         deleteObj.result = JSON.stringify(res.body);
     }
     catch (err) {
-        if (err.body){
-            deleteObj.err = JSON.stringify(err.body);
-        }
-        else {
-            deleteObj.err = JSON.stringify(err);
-        }
+        deleteObj.err = JSON.stringify(parseErr(err));
     }
     return deleteObj;
+}
+
+function parseErr(err){
+    if (err.body) return err.body;
+    return err;
 }
 
 module.exports = {
     getConfig,
     parseArr, 
     runDeleteFunc,
-    getDeleteFunc
+    getDeleteFunc,
+    parseErr
 };
