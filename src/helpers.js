@@ -42,104 +42,97 @@ function getConfig(params, settings){
     return kc;
 }
 
-function getDeleteFunc(client, resourceType){
+function getDeleteFuncName(resourceType){
     switch(resourceType){
-        case "configmaps": case "cm":
-            return client.deleteNamespacedConfigMap;
-        case "endpoints": case "ep":
-            return client.deleteNamespacedEndpoints;
-        case "events": case "ev":
-            return client.deleteNamespacedEvent;
-        case "limitranges": case "limits":
-            return client.deleteNamespacedLimitRange;
+        case "configmaps": case "configmap": case "cm":
+            return "deleteNamespacedConfigMap";
+        case "endpoints": case "endpoint": case "ep":
+            return "deleteNamespacedEndpoints";
+        case "events": case "event": case "ev":
+            return "deleteNamespacedEvent";
+        case "limitranges": case "limitrange": case "limits":
+            return "deleteNamespacedLimitRange";
         case "namespaces": case "namespace": case "ns":
-            return client.deleteNamespace;
-        case "nodes": case "no":
-            return client.deleteNode;
-        case "persistentvolumeclaims": case "pvc":
-            return client.deleteNamespacedPersistentVolumeClaim;
-        case "persistentvolumes": case "pv":
-            return client.deleteNamespacedPersistentVolumeClaim;
-        case "pods": case "po":
-            return client.deleteNamespacedPod;
-        case "podtemplates":
-            return client.deleteNamespacedPodTemplate;
-        case "replicationcontrollers": case "rc":
-            return client.deleteNamespacedReplicationController;
-        case "resourcequotas": case "quota":
-            return client.deleteNamespacedResourceQuota;
-        case "secrets":
-            return client.deleteNamespacedSecret;
-        case "serviceaccounts": case "sa":
-            return client.deleteNamespacedServiceAccount;
-        case "services": case "svc":
-            return client.deleteNamespacedService;
-        case "daemonsets": case "ds":
-            return client.deleteNamespacedDaemonSet;
-        case "deployments": case "deploy":
-            return client.deleteNamespacedDeployment;
-        case "statefulsets": case "sts":
-            return client.deleteNamespacedStatefulSet;
-        case "controllerrevisions":
-            return client.deleteNamespacedControllerRevision;
-        case "replicasets": case "rs":
-            return client.deleteNamespacedReplicaSet;
-        case "ingresses": case "ing":
-            return client.deleteNamespacedIngress;
-        case "networkpolicies": case "netpol":
-            return client.deleteNamespacedNetworkPolicy;
-        case "podsecuritypolicies": case "psp":
-            return client.deletePodSecurityPolicy;
-        case "clusterrolebindings":
-            return client.deleteClusterRoleBinding;
-        case "clusterroles":
-            return client.deleteClusterRole;
-        case "rolebindings":
-            return client.deleteClusterRoleBinding;
-        case "jobs":
-            return client.deleteNamespacedJob;
-        case "cronjobs": case "cj":
-            return client.deleteNamespacedCronJob;
-        case "storageclasses": case "sc":
-            return client.deleteStorageClass;
-        case "volumeattachments":
-            return client.deleteVolumeAttachment;
+            return "deleteNamespace";
+        case "nodes": case "node": case "no":
+            return "deleteNode";
+        case "persistentvolumeclaims": case "persistentvolumeclaim": case "pvc":
+            return "deleteNamespacedPersistentVolumeClaim";
+        case "persistentvolumes": case "persistentvolume": case "pv":
+            return "deleteNamespacedPersistentVolume";
+        case "pods": case "pod": case "po":
+            return "deleteNamespacedPod";
+        case "podtemplates": case "podtemplate":
+            return "deleteNamespacedPodTemplate";
+        case "replicationcontrollers": case "replicationcontroller": case "rc":
+            return "deleteNamespacedReplicationController";
+        case "resourcequotas": case "resourcequota": case "quota":
+            return "deleteNamespacedResourceQuota";
+        case "secrets": case "secret":
+            return "deleteNamespacedSecret";
+        case "serviceaccounts": case "serviceaccount": case "sa":
+            return "deleteNamespacedServiceAccount";
+        case "services": case "service": case "svc":
+            return "deleteNamespacedService";
+        case "daemonsets": case "daemonset": case "ds":
+            return "deleteNamespacedDaemonSet";
+        case "deployments": case "deployment": case "deploy":
+            return "deleteNamespacedDeployment";
+        case "statefulsets": case "statefulset": case "sts":
+            return "deleteNamespacedStatefulSet";
+        case "controllerrevisions": case "controllerrevision":
+            return "deleteNamespacedControllerRevision";
+        case "replicasets": case "replicaset": case "rs":
+            return "deleteNamespacedReplicaSet";
+        case "ingresses": case "ingress": case "ing":
+            return "deleteNamespacedIngress";
+        case "networkpolicies": case "networkpolicy": case "netpol":
+            return "deleteNamespacedNetworkPolicy";
+        case "podsecuritypolicies": case "podsecuritypolicy": case "psp":
+            return "deletePodSecurityPolicy";
+        case "clusterrolebindings": case "clusterrolebinding":
+            return "deleteClusterRoleBinding";
+        case "clusterroles": case "clusterrole":
+            return "deleteClusterRole";
+        case "rolebindings": case "rolebinding":
+            return "deleteClusterRoleBinding";
+        case "jobs": case "job":
+            return "deleteNamespacedJob";
+        case "cronjobs": case "cronjob": case "cj":
+            return "deleteNamespacedCronJob";
+        case "storageclasses": case "storageclass": case "sc":
+            return "deleteStorageClass";
+        case "volumeattachments": case "volumeattachment":
+            return "deleteVolumeAttachment";
         default:
             throw "couldn't find resource type";
     }
 }
 
-const apiToResourceType = [
-    {api: k8s.CoreV1Api, types: ["configmaps", "cm", "endpoints", "ep", "events", "ev", 
-        "limitranges", "limits", "namespaces", "ns", "nodes", "no", 
-        "persistentvolumeclaims", "pvc", "persistentvolumes", "pv", "pods", "po", "podtemplates", 
-        "replicationcontrollers", "rc", "resourcequotas", "rc", "secrets", "serviceaccounts", "sa", 
-        "services", "svc"]},
-    {api: k8s.AppsV1Api, types: ["daemonsets", "ds", "deployments", "deploy", "replicasets", "rs", 
-        "statefulsets", "sts", "controllerrevisions"]},
-    {api: k8s.ExtensionsV1beta1Api, types: ["ingresses", "ing", "networkpolicies", "netpol", 
-        "podsecuritypolicies", "psp"]},
-    {api: k8s.RbacAuthorizationV1Api, types: ["clusterrolebindings", "clusterroles", "rolebindings" ]},
-    {api: k8s.BatchV1Api, types: ["jobs"]},
-    {api: k8s.BatchV2alpha1Api, types: ["cronjobs", "cj"]},
-    {api: k8s.StorageV1Api, types: ["storageclasses", "sc", "volumeattachments"]},
-    {api: k8s.KubernetesObjectApi, types: ["spec"]}
+const apiToFuncs = [
+    {api: k8s.CoreV1Api, funcs: ["deleteNamespacedConfigMap", "deleteNamespacedEndpoints", "deleteNamespacedEvent", 
+        "deleteNamespacedLimitRange", "deleteNamespace", "deleteNode",  "deleteNamespacedPersistentVolumeClaim", 
+        "deleteNamespacedPersistentVolume", "deleteNamespacedPod", "deleteNamespacedPodTemplate", 
+        "deleteNamespacedReplicationController", "deleteNamespacedResourceQuota", "deleteNamespacedSecret", 
+        "deleteNamespacedServiceAccount", "deleteNamespacedService"]},
+    {api: k8s.AppsV1Api, funcs: ["deleteNamespacedDaemonSet", "deleteNamespacedDeployment", "deleteNamespacedReplicaSet",
+        "deleteNamespacedStatefulSet", "deleteNamespacedControllerRevision"]},
+    {api: k8s.ExtensionsV1beta1Api, funcs: ["deleteNamespacedIngress", "deleteNamespacedNetworkPolicy", "deletePodSecurityPolicy"]},
+    {api: k8s.RbacAuthorizationV1Api, funcs: ["deleteClusterRoleBinding", "deleteClusterRole", "deleteClusterRoleBinding" ]},
+    {api: k8s.BatchV1Api, funcs: ["deleteNamespacedJob"]},
+    {api: k8s.BatchV2alpha1Api, funcs: ["deleteNamespacedCronJob"]},
+    {api: k8s.StorageV1Api, funcs: ["deleteStorageClass",  "deleteVolumeAttachment"]}
 ]
 
-function getClient(kc, resourceType){
-    let api = apiToResourceType.find(mapObj => mapObj.types.includes(resourceType))?.api;
-    if (!api) {
-        apiToResourceType.forEach(mapObj => [`${resourceType}s`, `${resourceType}es`].forEach(rsrc => {
-            if (mapObj.types.includes(rsrc)){
-                api = mapObj.api;
-                resourceType = rsrc;
-            }
-        }));
-    }
-    if (api) {
-        return [resourceType, kc.makeApiClient(api)];
-    }
-    throw `Couldn't find API client for resource type '${resourceType}'`;
+function getDeleteFunc(kc, resourceType){
+    const funcName = getDeleteFuncName(resourceType);
+    const api = apiToFuncs.find(mapObj => mapObj.funcs.includes(funcName))?.api;
+
+    if (!api) throw `Couldn't find API client for resource type '${resourceType}'`;
+        
+    const client = kc.makeApiClient(api);
+    const delFunc = client[funcName].bind(client); // bind delete function to it's client
+    return delFunc;
 }
 
 function parseArr(arr){
@@ -153,7 +146,7 @@ function parseArr(arr){
 async function runDeleteFunc(deleteFunc, resourceType, name, namespace){
     const deleteObj = {
         "type": resourceType,
-        "name": name
+        "name": name,
     }
     try {
         let res;
@@ -164,22 +157,23 @@ async function runDeleteFunc(deleteFunc, resourceType, name, namespace){
         else {
             res = await deleteFunc(name);
         }
-        deleteObj.result = res.body.status;
+        deleteObj.result = JSON.stringify(res.body);
     }
     catch (err) {
-        if (err.body.code === 404){
-            return null;
-        }
-        deleteObj.result = "Failure";
-        deleteObj.err = err;
+        deleteObj.err = JSON.stringify(parseErr(err));
     }
     return deleteObj;
 }
 
+function parseErr(err){
+    if (err.body) return err.body;
+    return err;
+}
+
 module.exports = {
     getConfig,
-    getClient,
     parseArr, 
     runDeleteFunc,
-    getDeleteFunc
+    getDeleteFunc,
+    parseErr
 };

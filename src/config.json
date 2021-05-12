@@ -4,7 +4,7 @@
   "imgUrl": "kubernetes.png",
   "execProgram": "node",
   "main": "app.js",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "Works with Kubernetes API",
   "settings":[
     { 
@@ -93,6 +93,42 @@
           "name": "names",
           "viewName": "Names",
           "type": "text"
+        },
+        {
+          "name": "namespace",
+          "viewName": "Namespace",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "getService",
+      "viewName": "Get Service",
+      "params": [
+        { 
+          "name": "endpointUrl",
+          "viewName": "Endpoint URL",
+          "type": "string"
+        },
+        {
+          "name": "caCert",
+          "viewName": "Certificate Authority",
+          "type": "vault"
+        },
+        {
+          "name": "token",
+          "viewName": "Service Account Token",
+          "type": "vault"
+        },
+        {
+          "name": "saName",
+          "viewName": "Service Account Name",
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "viewName": "Name",
+          "type": "string"
         },
         {
           "name": "namespace",
