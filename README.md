@@ -41,7 +41,7 @@ You can bind the role `cluster-admin` in the namespace you are working to give t
 4. Service Account Name (String) **Optional** - The name of the kaholo service account. 
 5. Yaml File Path (String) **Required** - Path to a YML file with info on the Kubernetes resources you want to create or update.
 
-## Method Delete Object
+## Method: Delete Object
 Delete any kubernetes object by it's name, type and namespace.
 
 ### Service Account Permmisions
@@ -55,3 +55,17 @@ For this method to work the service account needs permmisions to delete the reso
 5. Types (Text/Array) **Required** - The type(s) of object(s) you want to delete. You can enter multiple values by seperating each with a new line.
 6. Names (Text/Array) **Required** - The name(s) of the object(s) you want to delete. You can enter multiple values by seperating each with a new line.
 7. Namespace (String) **Optional** - The namespace of the object(s) to delete. Not required if the resource is not inside a namespace, like when deleting the namespace itself or deleting a Node for example. **Required for 'namespaced' resources.**
+
+## Method: Get Service
+Geta all data about the requested kubernetes service.
+
+### Service Account Permmisions
+For this method to work the service account needs permmisions to read services.
+
+### Parameters
+1. Endpoint URL (String) **Optional** - The URL the cluster to connect to. If not provided will use endpoint URL from settings.
+2. Certificate Authority (Vault) **Optional** - The CA certification of the cluster.
+3. Service Account Token (Vault) **Optional** - The token of the service account that's configured on the required cluster.
+4. Service Account Name (String) **Optional** - The name of the kaholo service account. 
+5. Name (String) **Required** - The name of the service you want to get info about.
+6. Namespace (String) **Optional** - The namespace of the object(s) to delete. Default vaule is "default".
