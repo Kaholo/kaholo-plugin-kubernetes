@@ -33,7 +33,8 @@ async function apply(action, settings){
         created.push(response.body);
       }
       catch (err2) {
-        throw {error: parseErr(err2), created: created};
+        created.push(err2);
+        throw created;
       }
     }
     // we got the resource, so it exists, so patch it
@@ -42,7 +43,8 @@ async function apply(action, settings){
       created.push(response.body);
     }
     catch (err){
-      throw {error: parseErr(err), created: created};
+      created.push(err);
+      throw created;
     }
   }
   return created;
