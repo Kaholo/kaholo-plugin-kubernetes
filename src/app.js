@@ -6,6 +6,7 @@ const {KubernetesObjectApi, CoreV1Api} = require('@kubernetes/client-node');
 
 async function apply(action, settings){
   const yamlPath = (action.params.yamlPath || "").trim();
+  const namespace = (action.params.namespace || "").trim();
   if (!yamlPath){
     throw "Not given yaml file path";
   }
@@ -18,36 +19,32 @@ async function apply(action, settings){
   const client = kc.makeApiClient(KubernetesObjectApi);
   const created = [];
   for (const spec of specs){
+    if (namespace && !spec.metadata.namespace && spec.kind !== "Namespace"){
+      spec.metadata.namespace = namespace;
+    }
     spec.metadata.annotations = spec.metadata.annotations || {};
     delete spec.metadata.annotations['kubectl.kubernetes.io/last-applied-configuration'];
     spec.metadata.annotations['kubectl.kubernetes.io/last-applied-configuration'] = JSON.stringify(spec);
     try {
-      // try to get the resource, if it does not exist an error will be thrown and we will end up in the catch
-      // block.
-      await client.read(spec);
+      const response = await applyBySpec(client, spec);
+      created.push(response.body);
     } 
     catch (err) {
-      // we did not get the resource, so it does not exist, so create it
-      try {
-        const response = await client.create(spec);
-        created.push(response.body);
-      }
-      catch (err2) {
-        created.push(err2);
-        throw created;
-      }
-    }
-    // we got the resource, so it exists, so patch it
-    try {
-      const response = await client.patch(spec);
-      created.push(response.body);
-    }
-    catch (err){
-      created.push(err);
+      created.push(parseErr(err));
       throw created;
     }
   }
   return created;
+}
+
+async function applyBySpec(client, spec){
+  try {
+    await client.read(spec);
+  }
+  catch (err){
+    return client.create(spec);
+  }
+  return client.patch(spec);
 }
 
 async function deleteObject(action, settings){  

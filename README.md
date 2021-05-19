@@ -40,6 +40,7 @@ You can bind the role `cluster-admin` in the namespace you are working to give t
 3. Service Account Token (Vault) **Optional** - The token of the service account that's configured on the required cluster.
 4. Service Account Name (String) **Optional** - The name of the kaholo service account. 
 5. Yaml File Path (String) **Required** - Path to a YML file with info on the Kubernetes resources you want to create or update.
+6. Namespace (String) **Optional** - The namespace to assign each new resource to if not specified in it's spec. Default value is "default".
 
 ## Method: Delete Object
 Delete any kubernetes object by it's name, type and namespace.
