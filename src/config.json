@@ -4,28 +4,47 @@
   "imgUrl": "kubernetes.png",
   "execProgram": "node",
   "main": "app.js",
-  "version": "1.3.3",
-  "description": "Works with Kubernetes API",
-  "settings":[
-    { 
+  "version": "1.4.0",
+  "description": "Integration with Kubernetes API and CLI.",
+  "category": "CONTAINERS",
+  "keywords": ["kubernetes", "k8", "k8s", "cloud", "container", "cluster", "API", "CLI"],
+  "settings": [
+    {
       "name": "endpointUrl",
       "viewName": "Endpoint URL",
-      "type": "string"
+      "type": "string",
+      "description": "The default kubernetes endpoint URL to connect to.",
+      "placeholder": "10.0.1.149:443",
+      "learnUrl": "https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/"
     },
     {
       "name": "caCert",
       "viewName": "Certificate Authority",
-      "type": "vault"
+      "type": "vault",
+      "description": "The default Certificate Authority to use for authentication.",
+      "learnUrl": "https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-certs/"
     },
     {
       "name": "token",
       "viewName": "Service Account Token",
-      "type": "vault"
+      "type": "vault",
+      "description": "The token to use for authentication to the service account on default.",
+      "learnUrl": "https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/"
     },
     {
       "name": "saName",
       "viewName": "Service Account Name",
-      "type": "string"
+      "type": "string",
+      "description": "The name of the default service account to use for authentication.",
+      "placeholder": "username",
+      "learnUrl": "https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/"
+    },
+    {
+      "name": "SUDO",
+      "viewName": "Sudo CLI commands",
+      "type": "boolean",
+      "description": "If true, run all CLI commands with the Sudo command. The sudo command allows you to run programs with the security privileges of another user (by default, as the superuser). It prompts you for your personal password and confirms your request to execute a command by checking a file, called sudoers , which the system administrator configures.",
+      "learnUrl": "https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/"
     }
   ],
   "methods": [
@@ -33,35 +52,107 @@
       "name": "apply",
       "viewName": "Apply",
       "params": [
-        { 
+        {
           "name": "endpointUrl",
           "viewName": "Endpoint URL",
-          "type": "string"
+          "type": "string",
+          "description": "An endpoint is a resource that gets IP addresses of one or more pods dynamically assigned to it, along with a port. An endpoint can be viewed using kubectl get endpoints.",
+          "placeholder": "10.0.1.149:443",
+          "learnUrl": "https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/"
         },
         {
           "name": "caCert",
           "viewName": "Certificate Authority",
-          "type": "vault"
+          "type": "vault",
+          "description": "Kubernetes provides a certificates.k8s.io API, which lets you provision TLS certificates signed by a Certificate Authority (CA) that you control. These CA and certificates can be used by your workloads to establish trust. certificates.k8s.io API uses a protocol that is similar to the ACME draft.",
+          "learnUrl": "https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-certs/"
         },
         {
           "name": "token",
           "viewName": "Service Account Token",
-          "type": "vault"
+          "type": "vault",
+          "description": "A service account has an associated service account authentication token, which is stored as a Kubernetes secret.",
+          "learnUrl": "https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/"
         },
         {
           "name": "saName",
           "viewName": "Service Account Name",
-          "type": "string"
+          "type": "string",
+          "description": "Kubernetes service accounts are Kubernetes resources, created and managed using the Kubernetes API, meant to be used by in-cluster Kubernetes-created entities, such as Pods, to authenticate to the Kubernetes API server or external services.",
+          "placeholder": "username",
+          "learnUrl": "https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/"
         },
         {
           "name": "yamlPath",
           "viewName": "Yaml File Path",
-          "type": "string"
+          "type": "string",
+          "description": "Yaml File full Path to create the update.",
+          "placeholder": "/path/to/file",
+          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/"
         },
         {
           "name": "namespace",
           "viewName": "Namespace",
-          "type": "string"
+          "type": "string",
+          "description": "Namespaces are a way to organize clusters into virtual sub-clusters — they can be helpful when different teams or projects share a Kubernetes cluster. Any number of namespaces are supported within a cluster, each logically separated from others but with the ability to communicate with each other.",
+          "placeholder": "namespace",
+          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
+        }
+      ]
+    },
+    {
+      "name": "cliApply",
+      "viewName": "CLI - Apply",
+      "params": [
+        {
+          "name": "FILE_PATH",
+          "viewName": "File Path",
+          "type": "string",
+          "description": "The path to the yml file to apply.",
+          "placeholder": "/path/to/file",
+          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
+        },
+        {
+          "name": "FORCE",
+          "viewName": "Force",
+          "type": "boolean",
+          "description": "If true, immediately remove resources from API and bypass graceful deletion. Default value is false.",
+          "learnUrl": "https://kubernetes.io/docs/concepts/cluster-administration/manage-deployment/"
+        },
+        {
+          "name": "NO_OVERWRITE",
+          "viewName": "Don't Overwrite",
+          "type": "boolean",
+          "description": "Do not automatically resolve conflicts between the modified and live configuration by using values from the modified configuration.",
+          "learnUrl": "https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands"
+        },
+        {
+          "name": "DRY_RUN",
+          "viewName": "Dry-run",
+          "type": "options",
+          "options": [
+            {
+              "id": "none",
+              "name": "none"
+            },
+            {
+              "id": "server",
+              "name": "server"
+            },
+            {
+              "id": "client",
+              "name": "client"
+            }
+          ],
+          "description": "Dry run is not a concept exclusive to Kubernetes. It's an expression used to indicate a rehearsal of a performance or procedure before the real one. Dry run mode gives you the possibility of issuing a command without side effects for testing an actual command that you intend to run.",
+          "learnUrl": "https://kubernetes.io/blog/2019/01/14/apiserver-dry-run-and-kubectl-diff/"
+        },
+        {
+          "name": "SUDO",
+          "viewName": "Sudo",
+          "type": "boolean",
+          "description": "The sudo command allows you to run programs with the security privileges of another user (by default, as the superuser). It prompts you for your personal password and confirms your request to execute a command by checking a file, called sudoers , which the system administrator configures.",
+          "learnUrl": "https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/"
         }
       ]
     },
@@ -69,40 +160,58 @@
       "name": "deleteObject",
       "viewName": "Delete Object",
       "params": [
-        { 
+        {
           "name": "endpointUrl",
           "viewName": "Endpoint URL",
-          "type": "string"
+          "type": "string",
+          "description": "An endpoint is a resource that gets IP addresses of one or more pods dynamically assigned to it, along with a port. An endpoint can be viewed using kubectl get endpoints.",
+          "placeholder": "10.0.1.149:443",
+          "learnUrl": "https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/"
         },
         {
           "name": "caCert",
           "viewName": "Certificate Authority",
-          "type": "vault"
+          "type": "vault",
+          "description": "Kubernetes provides a certificates.k8s.io API, which lets you provision TLS certificates signed by a Certificate Authority (CA) that you control. These CA and certificates can be used by your workloads to establish trust. certificates.k8s.io API uses a protocol that is similar to the ACME draft.",
+          "learnUrl": "https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-certs/"
         },
         {
           "name": "token",
           "viewName": "Service Account Token",
-          "type": "vault"
+          "type": "vault",
+          "description": "A service account has an associated service account authentication token, which is stored as a Kubernetes secret.",
+          "learnUrl": "https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/"
         },
         {
           "name": "saName",
           "viewName": "Service Account Name",
-          "type": "string"
+          "type": "string",
+          "description": "Kubernetes service accounts are Kubernetes resources, created and managed using the Kubernetes API, meant to be used by in-cluster Kubernetes-created entities, such as Pods, to authenticate to the Kubernetes API server or external services.",
+          "placeholder": "username",
+          "learnUrl": "https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/"
         },
         {
           "name": "types",
           "viewName": "Types",
-          "type": "text"
+          "type": "text",
+          "description": "Kubernetes objects are entities that are used to represent the state of the cluster. An object is a “record of intent” – once created, the cluster does its best to ensure it exists as defined. This is known as the cluster's “desired state.”.",
+          "placeholder": "Pods | Namespaces | services | etc.",
+          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/"
         },
         {
           "name": "names",
           "viewName": "Names",
-          "type": "text"
+          "type": "text",
+          "description": "Each object in your cluster has a Name that is unique for that type of resource.",
+          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/names/"
         },
         {
           "name": "namespace",
           "viewName": "Namespace",
-          "type": "string"
+          "type": "string",
+          "description": "Specify the namespace to delete.",
+          "placeholder": "namespace",
+          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
         }
       ]
     },
@@ -110,35 +219,124 @@
       "name": "getService",
       "viewName": "Get Service",
       "params": [
-        { 
+        {
           "name": "endpointUrl",
           "viewName": "Endpoint URL",
-          "type": "string"
+          "type": "string",
+          "description": "An endpoint is a resource that gets IP addresses of one or more pods dynamically assigned to it, along with a port. An endpoint can be viewed using kubectl get endpoints.",
+          "placeholder": "10.0.1.149:443",
+          "learnUrl": "https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/"
         },
         {
           "name": "caCert",
           "viewName": "Certificate Authority",
-          "type": "vault"
+          "type": "vault",
+          "description": "Kubernetes provides a certificates.k8s.io API, which lets you provision TLS certificates signed by a Certificate Authority (CA) that you control. These CA and certificates can be used by your workloads to establish trust. certificates.k8s.io API uses a protocol that is similar to the ACME draft.",
+          "learnUrl": "https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-certs/"
         },
         {
           "name": "token",
           "viewName": "Service Account Token",
-          "type": "vault"
+          "type": "vault",
+          "description": "A service account has an associated service account authentication token, which is stored as a Kubernetes secret.",
+          "learnUrl": "https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/"
         },
         {
           "name": "saName",
           "viewName": "Service Account Name",
-          "type": "string"
+          "type": "string",
+          "description": "Kubernetes service accounts are Kubernetes resources, created and managed using the Kubernetes API, meant to be used by in-cluster Kubernetes-created entities, such as Pods, to authenticate to the Kubernetes API server or external services.",
+          "placeholder": "username",
+          "learnUrl": "https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/"
         },
         {
           "name": "name",
           "viewName": "Name",
-          "type": "string"
+          "type": "string",
+          "description": "A Kubernetes service is a logical abstraction for a deployed group of pods in a cluster (which all perform the same function). Since pods are ephemeral, a service enables a group of pods, which provide specific functions (web services, image processing, etc.) to be assigned a name and unique IP address (clusterIP).",
+          "placeholder": "myservice",
+          "learnUrl": "https://kubernetes.io/docs/concepts/services-networking/service/"
         },
         {
           "name": "namespace",
           "viewName": "Namespace",
-          "type": "string"
+          "type": "string",
+          "description": "Specify the namespace name.",
+          "placeholder": "namespace",
+          "learnUrl": "https://kubernetes.io/docs/concepts/services-networking/service/"
+        }
+      ]
+    },
+    {
+      "name": "cliGetServices",
+      "viewName": "CLI - Get Services",
+      "params": [
+        {
+          "name": "SUDO",
+          "viewName": "Sudo",
+          "type": "boolean",
+          "description": "The sudo command allows you to run programs with the security privileges of another user (by default, as the superuser). It prompts you for your personal password and confirms your request to execute a command by checking a file, called sudoers , which the system administrator configures.",
+          "learnUrl": "https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/"
+        },
+        {
+          "name": "namespace",
+          "viewName": "Namespace",
+          "type": "string",
+          "description": "Namespaces are a way to organize clusters into virtual sub-clusters — they can be helpful when different teams or projects share a Kubernetes cluster. Any number of namespaces are supported within a cluster, each logically separated from others but with the ability to communicate with each other.",
+          "placeholder": "namespace",
+          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
+        }
+      ]
+    },
+    {
+      "name": "cliExposeDeployment",
+      "viewName": "CLI - Expose Deployment",
+      "params": [
+        {
+          "name": "DEPLOYMENT",
+          "viewName": "Deployment",
+          "type": "string",
+          "required": true,
+          "description": "A Deployment runs multiple replicas of your application and automatically replaces any instances that fail or become unresponsive. In this way, Deployments help ensure that one or more instances of your application are available to serve user requests. Deployments are managed by the Kubernetes Deployment controller.",
+          "placeholder": "deployment_name",
+          "learnUrl": "https://kubernetes.io/docs/tutorials/kubernetes-basics/deploy-app/deploy-intro/"
+        },
+        {
+          "name": "TYPE",
+          "viewName": "Type",
+          "type": "string",
+          "description": "Kubernetes objects are entities that are used to represent the state of the cluster. An object is a “record of intent” – once created, the cluster does its best to ensure it exists as defined. This is known as the cluster's “desired state.”.",
+          "placeholder": "Pods | Namespaces | services | etc.",
+          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/"
+        },
+        {
+          "name": "NAME",
+          "viewName": "Name",
+          "type": "string",
+          "required": true,
+          "description": "A Kubernetes service is a logical abstraction for a deployed group of pods in a cluster (which all perform the same function). Since pods are ephemeral, a service enables a group of pods, which provide specific functions (web services, image processing, etc.) to be assigned a name and unique IP address (clusterIP).",
+          "placeholder": "mydeployment.",
+          "learnUrl": "https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands"
+        },
+        {
+          "name": "SUDO",
+          "viewName": "Sudo",
+          "type": "boolean",
+          "description": "The sudo command allows you to run programs with the security privileges of another user (by default, as the superuser). It prompts you for your personal password and confirms your request to execute a command by checking a file, called sudoers , which the system administrator configures.",
+          "learnUrl": "https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/"
+        }
+      ]
+    },
+    {
+      "name": "cliGetPods",
+      "viewName": "CLI - Get Pods",
+      "params": [
+        {
+          "name": "SUDO",
+          "viewName": "Sudo",
+          "type": "boolean",
+          "description": "The sudo command allows you to run programs with the security privileges of another user (by default, as the superuser). It prompts you for your personal password and confirms your request to execute a command by checking a file, called sudoers , which the system administrator configures.",
+          "learnUrl": "https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/"
         }
       ]
     }

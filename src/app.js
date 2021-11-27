@@ -106,6 +106,8 @@ async function getService(action, settings){
 module.exports = {
   apply,
   deleteObject,
-  getService
+  getService,
+  // CLI methods
+  ...require("./app.cli")
 };
 
