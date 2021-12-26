@@ -4,10 +4,22 @@
   "imgUrl": "kubernetes.png",
   "execProgram": "node",
   "main": "app.js",
-  "version": "1.4.0",
+  "version": "1.4.2",
   "description": "Integration with Kubernetes API and CLI.",
-  "category": "CONTAINERS",
-  "keywords": ["kubernetes", "k8", "k8s", "cloud", "container", "cluster", "API", "CLI"],
+  "category": [
+    "CLOUD",
+    "CONTAINERS"
+  ],
+  "keywords": [
+    "kubernetes",
+    "k8",
+    "k8s",
+    "cloud",
+    "container",
+    "cluster",
+    "API",
+    "CLI"
+  ],
   "settings": [
     {
       "name": "endpointUrl",
