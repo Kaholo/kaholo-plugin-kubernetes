@@ -131,6 +131,8 @@ module.exports = {
   apply,
   deleteObject,
   getService,
-  getAllServices
+  getAllServices,
+  // CLI methods
+  ...require("./app.cli")
 };
 
