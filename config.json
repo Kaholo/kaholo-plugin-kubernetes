@@ -6,8 +6,8 @@
   "main": "app.js",
   "version": "1.3.3",
   "description": "Works with Kubernetes API",
-  "settings":[
-    { 
+  "settings": [
+    {
       "name": "endpointUrl",
       "viewName": "Endpoint URL",
       "type": "string"
@@ -33,7 +33,7 @@
       "name": "apply",
       "viewName": "Apply",
       "params": [
-        { 
+        {
           "name": "endpointUrl",
           "viewName": "Endpoint URL",
           "type": "string"
@@ -69,7 +69,7 @@
       "name": "deleteObject",
       "viewName": "Delete Object",
       "params": [
-        { 
+        {
           "name": "endpointUrl",
           "viewName": "Endpoint URL",
           "type": "string"
@@ -110,7 +110,7 @@
       "name": "getService",
       "viewName": "Get Service",
       "params": [
-        { 
+        {
           "name": "endpointUrl",
           "viewName": "Endpoint URL",
           "type": "string"
@@ -139,6 +139,38 @@
           "name": "namespace",
           "viewName": "Namespace",
           "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "getAllServices",
+      "viewName": "Get All Services",
+      "params": [
+        {
+          "name": "endpointUrl",
+          "viewName": "Endpoint URL",
+          "type": "string"
+        },
+        {
+          "name": "caCert",
+          "viewName": "Certificate Authority",
+          "type": "vault"
+        },
+        {
+          "name": "token",
+          "viewName": "Service Account Token",
+          "type": "vault"
+        },
+        {
+          "name": "saName",
+          "viewName": "Service Account Name",
+          "type": "string"
+        },
+        {
+          "name": "namespace",
+          "viewName": "Namespace",
+          "type": "string",
+          "placeholder": "default"
         }
       ]
     }

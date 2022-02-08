@@ -70,3 +70,16 @@ For this method to work the service account needs permmisions to read services.
 4. Service Account Name (String) **Optional** - The name of the kaholo service account. 
 5. Name (String) **Required** - The name of the service you want to get info about.
 6. Namespace (String) **Optional** - The namespace of the object(s) to delete. Default vaule is "default".
+
+## Method: Get All Services
+Returns an array of services
+
+### Service Account Permmisions
+For this method to work the service account needs permmisions to read services.
+
+### Parameters
+1. Endpoint URL (String) **Optional** - The URL the cluster to connect to. If not provided will use endpoint URL from settings.
+2. Certificate Authority (Vault) **Optional** - The CA certification of the cluster.
+3. Service Account Token (Vault) **Optional** - The token of the service account that's configured on the required cluster.
+4. Service Account Name (String) **Optional** - The name of the kaholo service account. 
+5. Namespace (String) **Optional** - The namespace of the object(s) to delete. Default vaule is "default". Use "*" for all namespaces.
