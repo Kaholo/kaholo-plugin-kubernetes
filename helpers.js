@@ -3,6 +3,12 @@ const k8s = require('@kubernetes/client-node');
 // Constructors
 const { newClusters, newContexts, newUsers } = require('@kubernetes/client-node/dist/config_types');
 
+/**
+ * 
+ * @param {*} params 
+ * @param {*} settings 
+ * @returns {k8s.KubeConfig}
+ */
 function getConfig(params, settings){
     const caCert = params.caCert || settings.caCert;
     const endpointUrl = params.endpointUrl || settings.endpointUrl;
@@ -126,7 +132,9 @@ const apiToFuncs = [
 
 function getDeleteFunc(kc, resourceType){
     const funcName = getDeleteFuncName(resourceType);
-    const api = apiToFuncs.find(mapObj => mapObj.funcs.includes(funcName))?.api;
+    const apiFunc = apiToFuncs.find(mapObj => mapObj.funcs.includes(funcName));
+
+    const api = apiFunc ? apiFunc.api : undefined;
 
     if (!api) throw `Couldn't find API client for resource type '${resourceType}'`;
         

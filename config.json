@@ -4,7 +4,7 @@
   "imgUrl": "kubernetes.png",
   "execProgram": "node",
   "main": "app.js",
-  "version": "1.4.2",
+  "version": "1.5.0",
   "description": "Integration with Kubernetes API and CLI.",
   "category": [
     "CLOUD",
@@ -349,6 +349,38 @@
           "type": "boolean",
           "description": "The sudo command allows you to run programs with the security privileges of another user (by default, as the superuser). It prompts you for your personal password and confirms your request to execute a command by checking a file, called sudoers , which the system administrator configures.",
           "learnUrl": "https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/"
+        }
+      ]
+    },
+    {
+      "name": "getAllServices",
+      "viewName": "Get All Services",
+      "params": [
+        {
+          "name": "endpointUrl",
+          "viewName": "Endpoint URL",
+          "type": "string"
+        },
+        {
+          "name": "caCert",
+          "viewName": "Certificate Authority",
+          "type": "vault"
+        },
+        {
+          "name": "token",
+          "viewName": "Service Account Token",
+          "type": "vault"
+        },
+        {
+          "name": "saName",
+          "viewName": "Service Account Name",
+          "type": "string"
+        },
+        {
+          "name": "namespace",
+          "viewName": "Namespace",
+          "type": "string",
+          "placeholder": "default"
         }
       ]
     }

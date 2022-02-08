@@ -120,5 +120,33 @@ Createas a service object that exposes the specified deployment, using the kubec
 Return information on all pods in the kubernetes cluster, using kubectl.
 
 ### Parameters
+
 1. Sudo (Boolean) **Optional** - The sudo command allows you to run programs with the security privileges of another user (by default, as the superuser). It prompts you for your personal password and confirms your request to execute a command by checking a file, called sudoers , which the system administrator configures.
 [Learn More](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/)
+
+## Method: Get Service
+Returns an array of services
+
+### Service Account Permmisions
+For this method to work the service account needs permmisions to read services.
+
+### Parameters
+1. Endpoint URL (String) **Optional** - The URL the cluster to connect to. If not provided will use endpoint URL from settings.
+2. Certificate Authority (Vault) **Optional** - The CA certification of the cluster.
+3. Service Account Token (Vault) **Optional** - The token of the service account that's configured on the required cluster.
+4. Service Account Name (String) **Optional** - The name of the kaholo service account. 
+5. Name (String) **Required** - The name of the service you want to get info about.
+6. Namespace (String) **Optional** - The namespace of the object(s) to delete. Default vaule is "default".
+
+## Method: Get All Services
+Returns an array of services
+
+### Service Account Permmisions
+For this method to work the service account needs permmisions to read services.
+
+### Parameters
+1. Endpoint URL (String) **Optional** - The URL the cluster to connect to. If not provided will use endpoint URL from settings.
+2. Certificate Authority (Vault) **Optional** - The CA certification of the cluster.
+3. Service Account Token (Vault) **Optional** - The token of the service account that's configured on the required cluster.
+4. Service Account Name (String) **Optional** - The name of the kaholo service account. 
+5. Namespace (String) **Optional** - The namespace of the object(s) to delete. Default vaule is "default". Use "*" for all namespaces.

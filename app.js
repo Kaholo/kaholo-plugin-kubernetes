@@ -87,6 +87,30 @@ async function deleteObject(action, settings){
   return returnVal;
 }
 
+async function getAllServices(action, settings){
+  const { namespace } = action.params;
+  const kc = getConfig(action.params, settings);
+  const client = kc.makeApiClient(CoreV1Api);
+  try {
+    if (namespace=='*'){
+      const namespaces = await client.listNamespace();
+      const [...serviceResults] = await Promise.all(namespaces.body.items.map(namespaceObj=>{
+        return client.listNamespacedService(namespaceObj.metadata.name)
+      }));
+      const allServices = []
+      serviceResults.forEach(serviceResult=>{
+        allServices.push(...serviceResult.body.items);
+      })
+      return allServices;
+    }
+    const res = await client.listNamespacedService(namespace||'default');
+    return res.body.items;
+  }
+  catch (err){
+    throw parseErr(err);
+  }
+}
+
 async function getService(action, settings){
   const {name, namespace} = action.params;
   if (!name){
@@ -95,7 +119,7 @@ async function getService(action, settings){
   const kc = getConfig(action.params, settings);
   const client = kc.makeApiClient(CoreV1Api);
   try {
-    const res = await client.readNamespacedService(name, namespace || "default");
+    const res = await client.readSer(name, namespace || "default");
     return res.body;
   }
   catch (err){
@@ -107,6 +131,7 @@ module.exports = {
   apply,
   deleteObject,
   getService,
+  getAllServices,
   // CLI methods
   ...require("./app.cli")
 };
