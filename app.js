@@ -119,7 +119,7 @@ async function getService(action, settings){
   const kc = getConfig(action.params, settings);
   const client = kc.makeApiClient(CoreV1Api);
   try {
-    const res = await client.readSer(name, namespace || "default");
+    const res = await client.readNamespacedService(name, namespace || "default");
     return res.body;
   }
   catch (err){
