@@ -92,7 +92,7 @@ async function getAllServices(action, settings) {
   const kc = getConfig(action.params, settings);
   const client = kc.makeApiClient(CoreV1Api);
   try {
-    if (namespace == "*") {
+    if (namespace === "*") {
       const namespaces = await client.listNamespace();
       const listServicesPromises = namespaces.body.items.map(
         (namespaceObj) => client.listNamespacedService(namespaceObj.metadata.name),
