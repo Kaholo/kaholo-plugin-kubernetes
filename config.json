@@ -23,39 +23,39 @@
   "settings": [
     {
       "name": "endpointUrl",
-      "viewName": "Endpoint URL",
+      "viewName": "Default Endpoint URL",
       "type": "string",
-      "description": "The default kubernetes endpoint URL to connect to.",
-      "placeholder": "10.0.1.149:443",
+      "description": "The endpoint URL used to connect to the cluster",
+      "placeholder": "https://10.0.1.149:443",
       "learnUrl": "https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/"
     },
     {
       "name": "caCert",
-      "viewName": "Certificate Authority",
+      "viewName": "Default Certificate Authority",
       "type": "vault",
-      "description": "The default Certificate Authority to use for authentication.",
+      "description": "The CA cert to use for TLS connections to the cluster",
       "learnUrl": "https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-certs/"
     },
     {
       "name": "token",
-      "viewName": "Service Account Token",
+      "viewName": "Default Service Account Token",
       "type": "vault",
-      "description": "The token to use for authentication to the service account on default.",
+      "description": "The kubernetes service account token to use for authentication with the cluster",
       "learnUrl": "https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/"
     },
     {
       "name": "saName",
-      "viewName": "Service Account Name",
+      "viewName": "Default Service Account Name",
       "type": "string",
-      "description": "The name of the default service account to use for authentication.",
+      "description": "The name of the service account associated with the token",
       "placeholder": "username",
       "learnUrl": "https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/"
     },
     {
       "name": "SUDO",
-      "viewName": "Sudo CLI commands",
+      "viewName": "Default Sudo CLI commands",
       "type": "boolean",
-      "description": "If true, run all CLI commands with the Sudo command. The sudo command allows you to run programs with the security privileges of another user (by default, as the superuser). It prompts you for your personal password and confirms your request to execute a command by checking a file, called sudoers , which the system administrator configures.",
+      "description": "Running with sudo elevates privilges to run kubectl as the root user (superuser). Use this only if not using it fails.",
       "learnUrl": "https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/"
     }
   ],
@@ -66,48 +66,54 @@
       "params": [
         {
           "name": "endpointUrl",
-          "viewName": "Endpoint URL",
+          "viewName": "Endpoint URL *",
+          "required": false,
           "type": "string",
-          "description": "An endpoint is a resource that gets IP addresses of one or more pods dynamically assigned to it, along with a port. An endpoint can be viewed using kubectl get endpoints.",
-          "placeholder": "10.0.1.149:443",
+          "description": "The endpoint URL used to connect to the cluster",
+          "placeholder": "https://10.0.1.149:443",
           "learnUrl": "https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/"
         },
         {
           "name": "caCert",
-          "viewName": "Certificate Authority",
+          "viewName": "Certificate Authority *",
+          "required": false,
           "type": "vault",
-          "description": "Kubernetes provides a certificates.k8s.io API, which lets you provision TLS certificates signed by a Certificate Authority (CA) that you control. These CA and certificates can be used by your workloads to establish trust. certificates.k8s.io API uses a protocol that is similar to the ACME draft.",
+          "description": "The CA cert to use for TLS connections to the cluster",
           "learnUrl": "https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-certs/"
         },
         {
           "name": "token",
-          "viewName": "Service Account Token",
+          "viewName": "Service Account Token *",
+          "required": false,
           "type": "vault",
-          "description": "A service account has an associated service account authentication token, which is stored as a Kubernetes secret.",
+          "description": "The kubernetes service account token to use for authentication with the cluster",
           "learnUrl": "https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/"
         },
         {
           "name": "saName",
           "viewName": "Service Account Name",
+          "required": false,
           "type": "string",
-          "description": "Kubernetes service accounts are Kubernetes resources, created and managed using the Kubernetes API, meant to be used by in-cluster Kubernetes-created entities, such as Pods, to authenticate to the Kubernetes API server or external services.",
-          "placeholder": "username",
+          "description": "The name of the service account associated with the token",
+          "placeholder": "clusteruser1",
           "learnUrl": "https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/"
         },
         {
           "name": "yamlPath",
-          "viewName": "Yaml File Path",
+          "viewName": "Yaml File Path *",
+          "required": false,
           "type": "string",
-          "description": "Yaml File full Path to create the update.",
-          "placeholder": "/path/to/file",
+          "description": "Path to YAML file on agent",
+          "placeholder": "yamlrepo/deploy-nginx.yaml",
           "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/"
         },
         {
           "name": "namespace",
           "viewName": "Namespace",
+          "required": false,
           "type": "string",
-          "description": "Namespaces are a way to organize clusters into virtual sub-clusters — they can be helpful when different teams or projects share a Kubernetes cluster. Any number of namespaces are supported within a cluster, each logically separated from others but with the ability to communicate with each other.",
-          "placeholder": "namespace",
+          "description": "The namespace name if not \"default\"",
+          "placeholder": "default",
           "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
         }
       ]
@@ -118,7 +124,8 @@
       "params": [
         {
           "name": "FILE_PATH",
-          "viewName": "File Path",
+          "viewName": "File Path *",
+          "required": false,
           "type": "string",
           "description": "The path to the yml file to apply.",
           "placeholder": "/path/to/file",
@@ -127,6 +134,7 @@
         {
           "name": "FORCE",
           "viewName": "Force",
+          "required": false,
           "type": "boolean",
           "description": "If true, immediately remove resources from API and bypass graceful deletion. Default value is false.",
           "learnUrl": "https://kubernetes.io/docs/concepts/cluster-administration/manage-deployment/"
@@ -134,6 +142,7 @@
         {
           "name": "NO_OVERWRITE",
           "viewName": "Don't Overwrite",
+          "required": false,
           "type": "boolean",
           "description": "Do not automatically resolve conflicts between the modified and live configuration by using values from the modified configuration.",
           "learnUrl": "https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands"
@@ -141,7 +150,11 @@
         {
           "name": "DRY_RUN",
           "viewName": "Dry-run",
+          "required": false,
           "type": "options",
+          "description": "Dry run is not a concept exclusive to Kubernetes. It's an expression used to indicate a rehearsal of a performance or procedure before the real one. Dry run mode gives you the possibility of issuing a command without side effects for testing an actual command that you intend to run.",
+          "placeholder": "select using drop-down",
+          "learnUrl": "https://kubernetes.io/blog/2019/01/14/apiserver-dry-run-and-kubectl-diff/",
           "options": [
             {
               "id": "none",
@@ -155,15 +168,14 @@
               "id": "client",
               "name": "client"
             }
-          ],
-          "description": "Dry run is not a concept exclusive to Kubernetes. It's an expression used to indicate a rehearsal of a performance or procedure before the real one. Dry run mode gives you the possibility of issuing a command without side effects for testing an actual command that you intend to run.",
-          "learnUrl": "https://kubernetes.io/blog/2019/01/14/apiserver-dry-run-and-kubectl-diff/"
+          ]
         },
         {
           "name": "SUDO",
           "viewName": "Sudo",
+          "required": false,
           "type": "boolean",
-          "description": "The sudo command allows you to run programs with the security privileges of another user (by default, as the superuser). It prompts you for your personal password and confirms your request to execute a command by checking a file, called sudoers , which the system administrator configures.",
+          "description": "Running with sudo elevates privilges to run kubectl as the root user (superuser).",
           "learnUrl": "https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/"
         }
       ]
@@ -174,37 +186,42 @@
       "params": [
         {
           "name": "endpointUrl",
-          "viewName": "Endpoint URL",
+          "viewName": "Endpoint URL *",
+          "required": false,
           "type": "string",
-          "description": "An endpoint is a resource that gets IP addresses of one or more pods dynamically assigned to it, along with a port. An endpoint can be viewed using kubectl get endpoints.",
-          "placeholder": "10.0.1.149:443",
+          "description": "The endpoint URL used to connect to the cluster",
+          "placeholder": "https://10.0.1.149:443",
           "learnUrl": "https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/"
         },
         {
           "name": "caCert",
-          "viewName": "Certificate Authority",
+          "viewName": "Certificate Authority *",
+          "required": false,
           "type": "vault",
-          "description": "Kubernetes provides a certificates.k8s.io API, which lets you provision TLS certificates signed by a Certificate Authority (CA) that you control. These CA and certificates can be used by your workloads to establish trust. certificates.k8s.io API uses a protocol that is similar to the ACME draft.",
+          "description": "The CA cert to use for TLS connections to the cluster",
           "learnUrl": "https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-certs/"
         },
         {
           "name": "token",
-          "viewName": "Service Account Token",
+          "viewName": "Service Account Token *",
+          "required": false,
           "type": "vault",
-          "description": "A service account has an associated service account authentication token, which is stored as a Kubernetes secret.",
+          "description": "The kubernetes service account token to use for authentication with the cluster",
           "learnUrl": "https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/"
         },
         {
           "name": "saName",
           "viewName": "Service Account Name",
+          "required": false,
           "type": "string",
-          "description": "Kubernetes service accounts are Kubernetes resources, created and managed using the Kubernetes API, meant to be used by in-cluster Kubernetes-created entities, such as Pods, to authenticate to the Kubernetes API server or external services.",
+          "description": "The name of the service account associated with the token",
           "placeholder": "username",
           "learnUrl": "https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/"
         },
         {
           "name": "types",
-          "viewName": "Types",
+          "viewName": "Types *",
+          "required": false,
           "type": "text",
           "description": "Kubernetes objects are entities that are used to represent the state of the cluster. An object is a “record of intent” – once created, the cluster does its best to ensure it exists as defined. This is known as the cluster's “desired state.”.",
           "placeholder": "Pods | Namespaces | services | etc.",
@@ -212,7 +229,8 @@
         },
         {
           "name": "names",
-          "viewName": "Names",
+          "viewName": "Names *",
+          "required": false,
           "type": "text",
           "description": "Each object in your cluster has a Name that is unique for that type of resource.",
           "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/names/"
@@ -220,8 +238,9 @@
         {
           "name": "namespace",
           "viewName": "Namespace",
+          "required": false,
           "type": "string",
-          "description": "Specify the namespace to delete.",
+          "description": "The namespace name if not \"default\"",
           "placeholder": "namespace",
           "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
         }
@@ -233,47 +252,53 @@
       "params": [
         {
           "name": "endpointUrl",
-          "viewName": "Endpoint URL",
+          "viewName": "Endpoint URL *",
+          "required": false,
           "type": "string",
-          "description": "An endpoint is a resource that gets IP addresses of one or more pods dynamically assigned to it, along with a port. An endpoint can be viewed using kubectl get endpoints.",
-          "placeholder": "10.0.1.149:443",
+          "description": "The endpoint URL used to connect to the cluster",
+          "placeholder": "https://10.0.1.149:443",
           "learnUrl": "https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/"
         },
         {
           "name": "caCert",
-          "viewName": "Certificate Authority",
+          "viewName": "Certificate Authority *",
+          "required": false,
           "type": "vault",
-          "description": "Kubernetes provides a certificates.k8s.io API, which lets you provision TLS certificates signed by a Certificate Authority (CA) that you control. These CA and certificates can be used by your workloads to establish trust. certificates.k8s.io API uses a protocol that is similar to the ACME draft.",
+          "description": "The CA cert to use for TLS connections to the cluster",
           "learnUrl": "https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-certs/"
         },
         {
           "name": "token",
-          "viewName": "Service Account Token",
+          "viewName": "Service Account Token *",
+          "required": false,
           "type": "vault",
-          "description": "A service account has an associated service account authentication token, which is stored as a Kubernetes secret.",
+          "description": "The kubernetes service account token to use for authentication with the cluster",
           "learnUrl": "https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/"
         },
         {
           "name": "saName",
           "viewName": "Service Account Name",
+          "required": false,
           "type": "string",
-          "description": "Kubernetes service accounts are Kubernetes resources, created and managed using the Kubernetes API, meant to be used by in-cluster Kubernetes-created entities, such as Pods, to authenticate to the Kubernetes API server or external services.",
+          "description": "The name of the service account associated with the token",
           "placeholder": "username",
           "learnUrl": "https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/"
         },
         {
           "name": "name",
-          "viewName": "Name",
+          "viewName": "Name *",
+          "required": false,
           "type": "string",
-          "description": "A Kubernetes service is a logical abstraction for a deployed group of pods in a cluster (which all perform the same function). Since pods are ephemeral, a service enables a group of pods, which provide specific functions (web services, image processing, etc.) to be assigned a name and unique IP address (clusterIP).",
+          "description": "The name of the service to describe (or get)",
           "placeholder": "myservice",
           "learnUrl": "https://kubernetes.io/docs/concepts/services-networking/service/"
         },
         {
           "name": "namespace",
           "viewName": "Namespace",
+          "required": false,
           "type": "string",
-          "description": "Specify the namespace name.",
+          "description": "The namespace name if not \"default\"",
           "placeholder": "namespace",
           "learnUrl": "https://kubernetes.io/docs/concepts/services-networking/service/"
         }
@@ -286,15 +311,17 @@
         {
           "name": "SUDO",
           "viewName": "Sudo",
+          "required": false,
           "type": "boolean",
-          "description": "The sudo command allows you to run programs with the security privileges of another user (by default, as the superuser). It prompts you for your personal password and confirms your request to execute a command by checking a file, called sudoers , which the system administrator configures.",
+          "description": "Running with sudo elevates privilges to run kubectl as the root user (superuser).",
           "learnUrl": "https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/"
         },
         {
           "name": "namespace",
           "viewName": "Namespace",
+          "required": false,
           "type": "string",
-          "description": "Namespaces are a way to organize clusters into virtual sub-clusters — they can be helpful when different teams or projects share a Kubernetes cluster. Any number of namespaces are supported within a cluster, each logically separated from others but with the ability to communicate with each other.",
+          "description": "The namespace name if not \"default\"",
           "placeholder": "namespace",
           "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
         }
@@ -306,7 +333,8 @@
       "params": [
         {
           "name": "DEPLOYMENT",
-          "viewName": "Deployment",
+          "viewName": "Deployment *",
+          "required": false,
           "type": "string",
           "required": true,
           "description": "A Deployment runs multiple replicas of your application and automatically replaces any instances that fail or become unresponsive. In this way, Deployments help ensure that one or more instances of your application are available to serve user requests. Deployments are managed by the Kubernetes Deployment controller.",
@@ -315,7 +343,8 @@
         },
         {
           "name": "TYPE",
-          "viewName": "Type",
+          "viewName": "Type *",
+          "required": false,
           "type": "string",
           "description": "Kubernetes objects are entities that are used to represent the state of the cluster. An object is a “record of intent” – once created, the cluster does its best to ensure it exists as defined. This is known as the cluster's “desired state.”.",
           "placeholder": "Pods | Namespaces | services | etc.",
@@ -323,7 +352,8 @@
         },
         {
           "name": "NAME",
-          "viewName": "Name",
+          "viewName": "Name *",
+          "required": false,
           "type": "string",
           "required": true,
           "description": "A Kubernetes service is a logical abstraction for a deployed group of pods in a cluster (which all perform the same function). Since pods are ephemeral, a service enables a group of pods, which provide specific functions (web services, image processing, etc.) to be assigned a name and unique IP address (clusterIP).",
@@ -333,8 +363,9 @@
         {
           "name": "SUDO",
           "viewName": "Sudo",
+          "required": false,
           "type": "boolean",
-          "description": "The sudo command allows you to run programs with the security privileges of another user (by default, as the superuser). It prompts you for your personal password and confirms your request to execute a command by checking a file, called sudoers , which the system administrator configures.",
+          "description": "Running with sudo elevates privilges to run kubectl as the root user (superuser).",
           "learnUrl": "https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/"
         }
       ]
@@ -346,8 +377,9 @@
         {
           "name": "SUDO",
           "viewName": "Sudo",
+          "required": false,
           "type": "boolean",
-          "description": "The sudo command allows you to run programs with the security privileges of another user (by default, as the superuser). It prompts you for your personal password and confirms your request to execute a command by checking a file, called sudoers , which the system administrator configures.",
+          "description": "Running with sudo elevates privilges to run kubectl as the root user (superuser).",
           "learnUrl": "https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/"
         }
       ]
@@ -358,29 +390,46 @@
       "params": [
         {
           "name": "endpointUrl",
-          "viewName": "Endpoint URL",
-          "type": "string"
+          "viewName": "Endpoint URL *",
+          "required": false,
+          "type": "string",
+          "description": "The endpoint URL used to connect to the cluster",
+          "placeholder": "https://10.0.1.149:443",
+          "learnUrl": "https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/"
         },
         {
           "name": "caCert",
-          "viewName": "Certificate Authority",
-          "type": "vault"
+          "viewName": "Certificate Authority *",
+          "required": false,
+          "type": "vault",
+          "description": "The CA cert to use for TLS connections to the cluster",
+          "learnUrl": "https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-certs/"
         },
         {
           "name": "token",
-          "viewName": "Service Account Token",
-          "type": "vault"
+          "viewName": "Service Account Token *",
+          "required": false,
+          "type": "vault",
+          "description": "The kubernetes service account token to use for authentication with the cluster",
+          "learnUrl": "https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/"
         },
         {
           "name": "saName",
           "viewName": "Service Account Name",
-          "type": "string"
+          "required": false,
+          "type": "string",
+          "description": "The name of the service account associated with the token",
+          "placeholder": "clusteruser1",
+          "learnUrl": "https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/"
         },
         {
           "name": "namespace",
           "viewName": "Namespace",
+          "required": false,
           "type": "string",
-          "placeholder": "default"
+          "description": "The namespace name if not \"default\"",
+          "placeholder": "namespace",
+          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
         }
       ]
     }
