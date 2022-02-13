@@ -5,7 +5,7 @@
   "execProgram": "node",
   "main": "app.js",
   "version": "1.5.0",
-  "description": "Integration with Kubernetes API and CLI.",
+  "description": "Integration with Kubernetes API and kubectl CLI.",
   "category": [
     "CLOUD",
     "CONTAINERS"
@@ -223,7 +223,7 @@
           "viewName": "Types *",
           "required": false,
           "type": "text",
-          "description": "Kubernetes objects are entities that are used to represent the state of the cluster. An object is a “record of intent” – once created, the cluster does its best to ensure it exists as defined. This is known as the cluster's “desired state.”.",
+          "description": "Kubernetes objects are entities that are used to represent the state of the cluster. An object is a “record of intent” - once created, the cluster does its best to ensure it exists as defined. This is known as the cluster's “desired state.”.",
           "placeholder": "Pods | Namespaces | services | etc.",
           "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/"
         },
@@ -241,7 +241,7 @@
           "required": false,
           "type": "string",
           "description": "The namespace name if not \"default\"",
-          "placeholder": "namespace",
+          "placeholder": "default",
           "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
         }
       ]
@@ -299,7 +299,7 @@
           "required": false,
           "type": "string",
           "description": "The namespace name if not \"default\"",
-          "placeholder": "namespace",
+          "placeholder": "default",
           "learnUrl": "https://kubernetes.io/docs/concepts/services-networking/service/"
         }
       ]
@@ -322,7 +322,7 @@
           "required": false,
           "type": "string",
           "description": "The namespace name if not \"default\"",
-          "placeholder": "namespace",
+          "placeholder": "default",
           "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
         }
       ]
@@ -336,7 +336,6 @@
           "viewName": "Deployment *",
           "required": false,
           "type": "string",
-          "required": true,
           "description": "A Deployment runs multiple replicas of your application and automatically replaces any instances that fail or become unresponsive. In this way, Deployments help ensure that one or more instances of your application are available to serve user requests. Deployments are managed by the Kubernetes Deployment controller.",
           "placeholder": "deployment_name",
           "learnUrl": "https://kubernetes.io/docs/tutorials/kubernetes-basics/deploy-app/deploy-intro/"
@@ -346,7 +345,7 @@
           "viewName": "Type *",
           "required": false,
           "type": "string",
-          "description": "Kubernetes objects are entities that are used to represent the state of the cluster. An object is a “record of intent” – once created, the cluster does its best to ensure it exists as defined. This is known as the cluster's “desired state.”.",
+          "description": "Kubernetes objects are entities that are used to represent the state of the cluster. An object is a “record of intent” - once created, the cluster does its best to ensure it exists as defined. This is known as the cluster's “desired state.”.",
           "placeholder": "Pods | Namespaces | services | etc.",
           "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/"
         },
@@ -355,7 +354,6 @@
           "viewName": "Name *",
           "required": false,
           "type": "string",
-          "required": true,
           "description": "A Kubernetes service is a logical abstraction for a deployed group of pods in a cluster (which all perform the same function). Since pods are ephemeral, a service enables a group of pods, which provide specific functions (web services, image processing, etc.) to be assigned a name and unique IP address (clusterIP).",
           "placeholder": "mydeployment.",
           "learnUrl": "https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands"
@@ -428,7 +426,7 @@
           "required": false,
           "type": "string",
           "description": "The namespace name if not \"default\"",
-          "placeholder": "namespace",
+          "placeholder": "default",
           "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
         }
       ]
