@@ -2,7 +2,12 @@ const k8s = require("@kubernetes/client-node");
 // Constructors
 const { newClusters, newContexts, newUsers } = require("@kubernetes/client-node/dist/config_types");
 
+const UNAUTHORIZED_ERROR_MESSAGE = "Please ensure the Service Account Token is vaulted in the correct format and that your service account has sufficient privileges to perform this operation. Consult the plugin documentation for more details.\n";
+
 function parseErr(err) {
+  if (err.body.code === 401) {
+    process.stderr.write(UNAUTHORIZED_ERROR_MESSAGE);
+  }
   if (err.body) { return err.body; }
   return err;
 }
