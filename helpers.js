@@ -197,4 +197,3 @@ module.exports = {
   getDeleteFunc,
   parseErr,
 };
-
