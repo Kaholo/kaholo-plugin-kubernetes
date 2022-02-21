@@ -3,6 +3,11 @@ const k8s = require("@kubernetes/client-node");
 const { newClusters, newContexts, newUsers } = require("@kubernetes/client-node/dist/config_types");
 
 const UNAUTHORIZED_ERROR_MESSAGE = "Please ensure the Service Account Token is vaulted in the correct format and that your service account has sufficient privileges to perform this operation. Consult the plugin documentation for more details.";
+const EXTRACTION_FAILED = "Error occured while extracting the Service Account name from the Access Token. Make sure you pass the valid Access Token.";
+
+function decodeBase64(content) {
+  return Buffer.from(content, "base64").toString("utf-8");
+}
 
 function parseErr(err) {
   if (err.body) {
@@ -16,6 +21,24 @@ function parseErr(err) {
   }
   return err;
 }
+
+/**
+ * Extracts the service account name from the access token
+ * @param {string} token
+ * @returns {string}
+ */
+function extractServiceAccountName(token) {
+  try {
+    const decoded = decodeBase64(token.split(".")[1]);
+    const parsed = JSON.parse(decoded);
+    return parsed["kubernetes.io/serviceaccount/service-account.name"];
+  } catch (error) {
+    throw {
+      message: EXTRACTION_FAILED,
+      originalError: error,
+    };
+  }
+}
 /**
  *
  * @param {*} params
@@ -26,7 +49,7 @@ function getConfig(params, settings) {
   const caCert = params.caCert || settings.caCert;
   const endpointUrl = params.endpointUrl || settings.endpointUrl;
   const token = params.token || settings.token;
-  const saName = params.saName || settings.saName || "kaholo-sa";
+  const saName = extractServiceAccountName(token) || "kaholo-sa";
 
   if (!caCert || !endpointUrl || !token) {
     throw "not provided one of required fields";
