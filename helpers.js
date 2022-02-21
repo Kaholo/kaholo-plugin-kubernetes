@@ -31,7 +31,11 @@ function extractServiceAccountName(token) {
   try {
     const decoded = decodeBase64(token.split(".")[1]);
     const parsed = JSON.parse(decoded);
-    return parsed["kubernetes.io/serviceaccount/service-account.name"];
+    const name = parsed["kubernetes.io/serviceaccount/service-account.name"];
+    if (!name) {
+      throw new Error("\"Service Account Name\" was not found in the Access Token.");
+    }
+    return name;
   } catch (error) {
     throw {
       message: EXTRACTION_FAILED,
