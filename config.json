@@ -4,7 +4,7 @@
   "imgUrl": "kubernetes.png",
   "execProgram": "node",
   "main": "app.js",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "Integration with Kubernetes API and CLI.",
   "category": [
     "CLOUD",
@@ -44,14 +44,6 @@
       "learnUrl": "https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/"
     },
     {
-      "name": "saName",
-      "viewName": "Service Account Name",
-      "type": "string",
-      "description": "The name of the default service account to use for authentication.",
-      "placeholder": "username",
-      "learnUrl": "https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/"
-    },
-    {
       "name": "SUDO",
       "viewName": "Sudo CLI commands",
       "type": "boolean",
@@ -85,14 +77,6 @@
           "type": "vault",
           "description": "A service account has an associated service account authentication token, which is stored as a Kubernetes secret.",
           "learnUrl": "https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/"
-        },
-        {
-          "name": "saName",
-          "viewName": "Service Account Name",
-          "type": "string",
-          "description": "Kubernetes service accounts are Kubernetes resources, created and managed using the Kubernetes API, meant to be used by in-cluster Kubernetes-created entities, such as Pods, to authenticate to the Kubernetes API server or external services.",
-          "placeholder": "username",
-          "learnUrl": "https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/"
         },
         {
           "name": "yamlPath",
@@ -195,14 +179,6 @@
           "learnUrl": "https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/"
         },
         {
-          "name": "saName",
-          "viewName": "Service Account Name",
-          "type": "string",
-          "description": "Kubernetes service accounts are Kubernetes resources, created and managed using the Kubernetes API, meant to be used by in-cluster Kubernetes-created entities, such as Pods, to authenticate to the Kubernetes API server or external services.",
-          "placeholder": "username",
-          "learnUrl": "https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/"
-        },
-        {
           "name": "types",
           "viewName": "Types",
           "type": "text",
@@ -252,14 +228,6 @@
           "type": "vault",
           "description": "A service account has an associated service account authentication token, which is stored as a Kubernetes secret.",
           "learnUrl": "https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/"
-        },
-        {
-          "name": "saName",
-          "viewName": "Service Account Name",
-          "type": "string",
-          "description": "Kubernetes service accounts are Kubernetes resources, created and managed using the Kubernetes API, meant to be used by in-cluster Kubernetes-created entities, such as Pods, to authenticate to the Kubernetes API server or external services.",
-          "placeholder": "username",
-          "learnUrl": "https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/"
         },
         {
           "name": "name",
@@ -370,11 +338,6 @@
           "name": "token",
           "viewName": "Service Account Token",
           "type": "vault"
-        },
-        {
-          "name": "saName",
-          "viewName": "Service Account Name",
-          "type": "string"
         },
         {
           "name": "namespace",
