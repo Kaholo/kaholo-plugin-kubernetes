@@ -4,7 +4,7 @@
   "imgUrl": "kubernetes.png",
   "execProgram": "node",
   "main": "app.js",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "Integration with Kubernetes API and CLI.",
   "category": [
     "CLOUD",
