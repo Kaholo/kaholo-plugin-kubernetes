@@ -3,7 +3,8 @@ const k8s = require("@kubernetes/client-node");
 const { newClusters, newContexts, newUsers } = require("@kubernetes/client-node/dist/config_types");
 
 const UNAUTHORIZED_ERROR_MESSAGE = "Please ensure the Service Account Token is vaulted in the correct format and that your service account has sufficient privileges to perform this operation. Consult the plugin documentation for more details.";
-const EXTRACTION_FAILED = "Error occured while extracting the Service Account name from the Access Token. Make sure you pass the valid Access Token.";
+const EXTRACTION_FAILED_MESSAGE = "Error occured while extracting the Service Account name from the Access Token. Make sure you pass the valid Access Token.";
+const createMissingParamMessage = (paramName) => `${paramName} is a required parameter. Please configure it in either the plugin settings or the Action parameters.`;
 
 function decodeBase64(content) {
   return Buffer.from(content, "base64").toString("utf-8");
@@ -38,9 +39,28 @@ function extractServiceAccountName(token) {
     return name;
   } catch (error) {
     throw {
-      message: EXTRACTION_FAILED,
+      message: EXTRACTION_FAILED_MESSAGE,
       originalError: error,
     };
+  }
+}
+/**
+ * Checks the configuration
+ * @param {{
+ *  caCert: string;
+ *  endpointUrl: string;
+ *  token: string;
+ * }} config
+ */
+function validateConfig({ caCert, endpointUrl, token }) {
+  if (!caCert.trim()) {
+    throw createMissingParamMessage("Certificate Authority");
+  }
+  if (!endpointUrl.trim()) {
+    throw createMissingParamMessage("Endpoint URL");
+  }
+  if (!token.trim()) {
+    throw createMissingParamMessage("Service Account Token");
   }
 }
 /**
@@ -53,11 +73,9 @@ function getConfig(params, settings) {
   const caCert = params.caCert || settings.caCert;
   const endpointUrl = params.endpointUrl || settings.endpointUrl;
   const token = params.token || settings.token;
+  validateConfig({ caCert, token, endpointUrl });
   const saName = extractServiceAccountName(token) || "kaholo-sa";
 
-  if (!caCert || !endpointUrl || !token) {
-    throw "not provided one of required fields";
-  }
   // define options
   const user = {
     name: saName,
