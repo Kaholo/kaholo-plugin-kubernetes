@@ -2,9 +2,66 @@ const k8s = require("@kubernetes/client-node");
 // Constructors
 const { newClusters, newContexts, newUsers } = require("@kubernetes/client-node/dist/config_types");
 
+const UNAUTHORIZED_ERROR_MESSAGE = "Please ensure the Service Account Token is vaulted in the correct format and that your service account has sufficient privileges to perform this operation. Consult the plugin documentation for more details.";
+const EXTRACTION_FAILED_MESSAGE = "Error occured while extracting the Service Account name from the Access Token. Make sure you pass the valid Access Token.";
+const createMissingParamMessage = (paramName) => `${paramName} is a required parameter. Please configure it in either the plugin settings or the Action parameters.`;
+
+function decodeBase64(content) {
+  return Buffer.from(content, "base64").toString("utf-8");
+}
+
 function parseErr(err) {
-  if (err.body) { return err.body; }
+  if (err.body) {
+    if (err.body.code === 401) {
+      return {
+        message: UNAUTHORIZED_ERROR_MESSAGE,
+        originalError: err.body,
+      };
+    }
+    return err.body;
+  }
   return err;
+}
+
+/**
+ * Extracts the service account name from the access token
+ * @param {string} token
+ * @returns {string}
+ */
+function extractServiceAccountName(token) {
+  try {
+    const decoded = decodeBase64(token.split(".")[1]);
+    const parsed = JSON.parse(decoded);
+    const name = parsed["kubernetes.io/serviceaccount/service-account.name"];
+    if (!name) {
+      throw new Error("\"Service Account Name\" was not found in the Access Token.");
+    }
+    return name;
+  } catch (error) {
+    throw {
+      message: EXTRACTION_FAILED_MESSAGE,
+      originalError: error,
+    };
+  }
+}
+/**
+ * Checks the configuration
+ * @param {{
+ *  caCert: string;
+ *  endpointUrl: string;
+ *  token: string;
+ * }} config
+ */
+function validateConfig({ caCert, endpointUrl, token }) {
+  if (!caCert.trim()) {
+    throw createMissingParamMessage("Certificate Authority");
+  }
+  if (!endpointUrl.trim()) {
+    throw createMissingParamMessage("Endpoint URL");
+  }
+  if (!token.trim()) {
+    throw createMissingParamMessage("Service Account Token");
+  }
 }
 /**
  *
@@ -16,11 +73,9 @@ function getConfig(params, settings) {
   const caCert = params.caCert || settings.caCert;
   const endpointUrl = params.endpointUrl || settings.endpointUrl;
   const token = params.token || settings.token;
-  const saName = params.saName || settings.saName || "kaholo-sa";
+  validateConfig({ caCert, token, endpointUrl });
+  const saName = extractServiceAccountName(token) || "kaholo-sa";
 
-  if (!caCert || !endpointUrl || !token) {
-    throw "not provided one of required fields";
-  }
   // define options
   const user = {
     name: saName,

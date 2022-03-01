@@ -1,4 +1,3 @@
-/* eslint-disable prefer-destructuring */
 /* eslint-disable no-await-in-loop */
 const yaml = require("js-yaml");
 const fs = require("fs");
