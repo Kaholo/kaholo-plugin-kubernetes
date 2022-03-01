@@ -91,7 +91,11 @@ async function getAllServices(action, settings) {
   const { namespace, labelsFilter } = action.params;
   const kc = getConfig(action.params, settings);
   const client = kc.makeApiClient(CoreV1Api);
-  const filtersArray = !labelsFilter ? [] : (Array.isArray(labelsFilter) || labelsFilter.split("\n"));
+  let filtersArray = [];
+  if (labelsFilter) {
+    filtersArray = Array.isArray(labelsFilter) ? labelsFilter : labelsFilter.split("\n");
+  }
+
   const filters = filtersArray.map((f) => {
     const [key, value] = f.split("=");
     return { key, value };
