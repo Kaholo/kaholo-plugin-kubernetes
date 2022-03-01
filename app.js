@@ -1,3 +1,4 @@
+/* eslint-disable prefer-destructuring */
 /* eslint-disable no-await-in-loop */
 const yaml = require("js-yaml");
 const fs = require("fs");
@@ -88,9 +89,14 @@ async function deleteObject(action, settings) {
 }
 
 async function getAllServices(action, settings) {
-  const { namespace } = action.params;
+  const { namespace, labelsFilter } = action.params;
   const kc = getConfig(action.params, settings);
   const client = kc.makeApiClient(CoreV1Api);
+  const filtersArray = !labelsFilter ? [] : (Array.isArray(labelsFilter) || labelsFilter.split("\n"));
+  const filters = filtersArray.map((f) => {
+    const [key, value] = f.split("=");
+    return { key, value };
+  });
   try {
     if (namespace === "*") {
       const namespaces = await client.listNamespace();
@@ -100,7 +106,19 @@ async function getAllServices(action, settings) {
       const [...serviceResults] = await Promise.all(listServicesPromises);
       const allServices = [];
       serviceResults.forEach((serviceResult) => {
-        allServices.push(...serviceResult.body.items);
+        const filteredServices = serviceResult.body.items.filter((service) => {
+          for (let i = 0, length = filters.length; i < length; i += 1) {
+            const isFilterValid = service.metadata.labels && service.metadata.labels[filters[i].key]
+              && service.metadata.labels[filters[i].key] === filters[i].value;
+
+            if (!isFilterValid) {
+              return false;
+            }
+          }
+          return true;
+        });
+
+        allServices.push(...filteredServices);
       });
       return allServices;
     }
