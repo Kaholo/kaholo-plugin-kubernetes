@@ -16,6 +16,7 @@ module.exports = {
     curly: ["error", "all"],
     "no-throw-literal": ["off"],
     "no-console": "off",
+    "prefer-destructuring": "off",
     "no-restricted-syntax": ["error", "FunctionExpression", "WithStatement"],
   },
 };

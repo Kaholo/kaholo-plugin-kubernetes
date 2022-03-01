@@ -342,8 +342,15 @@
         {
           "name": "namespace",
           "viewName": "Namespace",
+          "description": "The namespace to search for services in. To search all namespaces use '*'. Default: 'default'",
           "type": "string",
           "placeholder": "default"
+        },
+        {
+          "name": "labelsFilter",
+          "viewName": "Labels Filter",
+          "description": "Labels to filter the results by. (One per line)",
+          "type": "text"
         }
       ]
     }
