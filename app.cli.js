@@ -2,20 +2,20 @@ const util = require("util");
 const exec = util.promisify(require("child_process").exec);
 const os = require("os");
 
-function getsudo(params, settings) {
-  return ((os.platform() === "linux") && (params.SUDO || settings.SUDO)) ? "sudo" : "";
+function getsudo(settings) {
+  return ((os.platform() === "linux") && settings.SUDO) ? "sudo" : "";
 }
 
 async function exposeDeployment(action, settings) {
   const { params } = action;
   const type = params.TYPE || "NodePort";
-  const execString = `${getsudo(params, settings)} kubectl expose deployment ${params.DEPLOYMENT} --type=${type} --name=${params.NAME}`;
+  const execString = `${getsudo(settings)} kubectl expose deployment ${params.DEPLOYMENT} --type=${type} --name=${params.NAME}`;
   return exec(execString);
 }
 
 async function getServices(action, settings) {
   const { params } = action;
-  const execString = `${getsudo(params, settings)} kubectl get svc -n ${action.params.namespace} -o json`;
+  const execString = `${getsudo(settings)} kubectl get svc -n ${params.namespace} -o json`;
   const execResult = await exec(execString);
   try {
     return JSON.parse(execResult.stdout);
@@ -25,7 +25,7 @@ async function getServices(action, settings) {
 }
 
 async function getPods(action, settings) {
-  const SUDO = getsudo(action.params, settings);
+  const SUDO = getsudo(settings);
   const execString = ` ${SUDO} kubectl get pod`;
   const res = await exec(execString);
   if (!res.stdout.includes("READY")) {
@@ -51,7 +51,7 @@ async function getPods(action, settings) {
 }
 
 async function apply(action, settings) {
-  const SUDO = getsudo(action.params, settings);
+  const SUDO = getsudo(settings);
   const force = action.params.FORCE ? "--force" : "";
   const noOverwrite = action.params.NO_OVERWRITE ? "--overwrite=false" : "";
   const dryRun = action.params.DRY_RUN ? `--dry-run=${action.params.DRY_RUN.trim()}` : "";

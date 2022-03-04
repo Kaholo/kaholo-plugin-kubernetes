@@ -4,7 +4,7 @@
   "imgUrl": "kubernetes.png",
   "execProgram": "node",
   "main": "app.js",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "description": "Integration with Kubernetes API and CLI.",
   "category": [
     "CLOUD",
@@ -84,7 +84,8 @@
           "type": "string",
           "description": "Yaml File full Path to create the update.",
           "placeholder": "/path/to/file",
-          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/"
+          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/",
+          "required": true
         },
         {
           "name": "namespace",
@@ -142,13 +143,6 @@
           ],
           "description": "Dry run is not a concept exclusive to Kubernetes. It's an expression used to indicate a rehearsal of a performance or procedure before the real one. Dry run mode gives you the possibility of issuing a command without side effects for testing an actual command that you intend to run.",
           "learnUrl": "https://kubernetes.io/blog/2019/01/14/apiserver-dry-run-and-kubectl-diff/"
-        },
-        {
-          "name": "SUDO",
-          "viewName": "Sudo",
-          "type": "boolean",
-          "description": "The sudo command allows you to run programs with the security privileges of another user (by default, as the superuser). It prompts you for your personal password and confirms your request to execute a command by checking a file, called sudoers , which the system administrator configures.",
-          "learnUrl": "https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/"
         }
       ]
     },
@@ -252,13 +246,6 @@
       "viewName": "CLI - Get Services",
       "params": [
         {
-          "name": "SUDO",
-          "viewName": "Sudo",
-          "type": "boolean",
-          "description": "The sudo command allows you to run programs with the security privileges of another user (by default, as the superuser). It prompts you for your personal password and confirms your request to execute a command by checking a file, called sudoers , which the system administrator configures.",
-          "learnUrl": "https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/"
-        },
-        {
           "name": "namespace",
           "viewName": "Namespace",
           "type": "string",
@@ -297,28 +284,12 @@
           "description": "A Kubernetes service is a logical abstraction for a deployed group of pods in a cluster (which all perform the same function). Since pods are ephemeral, a service enables a group of pods, which provide specific functions (web services, image processing, etc.) to be assigned a name and unique IP address (clusterIP).",
           "placeholder": "mydeployment.",
           "learnUrl": "https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands"
-        },
-        {
-          "name": "SUDO",
-          "viewName": "Sudo",
-          "type": "boolean",
-          "description": "The sudo command allows you to run programs with the security privileges of another user (by default, as the superuser). It prompts you for your personal password and confirms your request to execute a command by checking a file, called sudoers , which the system administrator configures.",
-          "learnUrl": "https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/"
         }
       ]
     },
     {
       "name": "cliGetPods",
-      "viewName": "CLI - Get Pods",
-      "params": [
-        {
-          "name": "SUDO",
-          "viewName": "Sudo",
-          "type": "boolean",
-          "description": "The sudo command allows you to run programs with the security privileges of another user (by default, as the superuser). It prompts you for your personal password and confirms your request to execute a command by checking a file, called sudoers , which the system administrator configures.",
-          "learnUrl": "https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/"
-        }
-      ]
+      "viewName": "CLI - Get Pods"
     },
     {
       "name": "getAllServices",
