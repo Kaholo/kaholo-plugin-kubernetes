@@ -1,21 +1,16 @@
 const util = require("util");
 const exec = util.promisify(require("child_process").exec);
-const os = require("os");
 
-function getsudo(settings) {
-  return ((os.platform() === "linux") && settings.SUDO) ? "sudo" : "";
-}
-
-async function exposeDeployment(action, settings) {
+async function exposeDeployment(action) {
   const { params } = action;
   const type = params.TYPE || "NodePort";
-  const execString = `${getsudo(settings)} kubectl expose deployment ${params.DEPLOYMENT} --type=${type} --name=${params.NAME}`;
+  const execString = `kubectl expose deployment ${params.DEPLOYMENT} --type=${type} --name=${params.NAME}`;
   return exec(execString);
 }
 
-async function getServices(action, settings) {
+async function getServices(action) {
   const { params } = action;
-  const execString = `${getsudo(settings)} kubectl get svc -n ${params.namespace} -o json`;
+  const execString = `kubectl get svc -n ${params.namespace} -o json`;
   const execResult = await exec(execString);
   try {
     return JSON.parse(execResult.stdout);
@@ -24,9 +19,8 @@ async function getServices(action, settings) {
   }
 }
 
-async function getPods(action, settings) {
-  const SUDO = getsudo(settings);
-  const execString = ` ${SUDO} kubectl get pod`;
+async function getPods() {
+  const execString = "kubectl get pod";
   const res = await exec(execString);
   if (!res.stdout.includes("READY")) {
     return Promise.resolve(res);
@@ -50,13 +44,12 @@ async function getPods(action, settings) {
   return Promise.resolve(newResult);
 }
 
-async function apply(action, settings) {
-  const SUDO = getsudo(settings);
+async function apply(action) {
   const force = action.params.FORCE ? "--force" : "";
   const noOverwrite = action.params.NO_OVERWRITE ? "--overwrite=false" : "";
   const dryRun = action.params.DRY_RUN ? `--dry-run=${action.params.DRY_RUN.trim()}` : "";
   const args = [force, noOverwrite, dryRun].filter((arg) => arg);
-  const execString = `${SUDO} kubectl apply -f ${action.params.FILE_PATH} ${args.join(" ")}`;
+  const execString = `kubectl apply -f ${action.params.FILE_PATH} ${args.join(" ")}`;
   return exec(execString);
 }
 

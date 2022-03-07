@@ -42,13 +42,6 @@
       "type": "vault",
       "description": "The token to use for authentication to the service account on default.",
       "learnUrl": "https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/"
-    },
-    {
-      "name": "SUDO",
-      "viewName": "Sudo CLI commands",
-      "type": "boolean",
-      "description": "If true, run all CLI commands with the Sudo command. The sudo command allows you to run programs with the security privileges of another user (by default, as the superuser). It prompts you for your personal password and confirms your request to execute a command by checking a file, called sudoers , which the system administrator configures.",
-      "learnUrl": "https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/"
     }
   ],
   "methods": [
