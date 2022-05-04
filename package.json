@@ -1,6 +1,5 @@
 {
   "name": "kaholo-plugin-kubernetes",
-  "version": "1.4.0",
   "description": "Kaholo plugin for integration with Kubernetes API and CLI.",
   "main": "app.js",
   "scripts": {

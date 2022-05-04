@@ -4,7 +4,7 @@
   "imgUrl": "kubernetes.png",
   "execProgram": "node",
   "main": "app.js",
-  "version": "1.5.0",
+  "version": "1.6.3",
   "description": "Integration with Kubernetes API and kubectl CLI.",
   "category": [
     "CLOUD",
@@ -42,21 +42,6 @@
       "type": "vault",
       "description": "The kubernetes service account token to use for authentication with the cluster",
       "learnUrl": "https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/"
-    },
-    {
-      "name": "saName",
-      "viewName": "Default Service Account Name",
-      "type": "string",
-      "description": "The name of the service account associated with the token",
-      "placeholder": "username",
-      "learnUrl": "https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/"
-    },
-    {
-      "name": "SUDO",
-      "viewName": "Default Sudo CLI commands",
-      "type": "boolean",
-      "description": "Running with sudo elevates privilges to run kubectl as the root user (superuser). Use this only if not using it fails.",
-      "learnUrl": "https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/"
     }
   ],
   "methods": [
@@ -90,22 +75,14 @@
           "learnUrl": "https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/"
         },
         {
-          "name": "saName",
-          "viewName": "Service Account Name",
-          "required": false,
-          "type": "string",
-          "description": "The name of the service account associated with the token",
-          "placeholder": "clusteruser1",
-          "learnUrl": "https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/"
-        },
-        {
           "name": "yamlPath",
           "viewName": "Yaml File Path *",
           "required": false,
           "type": "string",
           "description": "Path to YAML file on agent",
           "placeholder": "yamlrepo/deploy-nginx.yaml",
-          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/"
+          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/",
+          "required": true
         },
         {
           "name": "namespace",
@@ -168,15 +145,9 @@
               "id": "client",
               "name": "client"
             }
-          ]
-        },
-        {
-          "name": "SUDO",
-          "viewName": "Sudo",
-          "required": false,
-          "type": "boolean",
-          "description": "Running with sudo elevates privilges to run kubectl as the root user (superuser).",
-          "learnUrl": "https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/"
+          ],
+          "description": "Dry run is not a concept exclusive to Kubernetes. It's an expression used to indicate a rehearsal of a performance or procedure before the real one. Dry run mode gives you the possibility of issuing a command without side effects for testing an actual command that you intend to run.",
+          "learnUrl": "https://kubernetes.io/blog/2019/01/14/apiserver-dry-run-and-kubectl-diff/"
         }
       ]
     },
@@ -208,15 +179,6 @@
           "type": "vault",
           "description": "The kubernetes service account token to use for authentication with the cluster",
           "learnUrl": "https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/"
-        },
-        {
-          "name": "saName",
-          "viewName": "Service Account Name",
-          "required": false,
-          "type": "string",
-          "description": "The name of the service account associated with the token",
-          "placeholder": "username",
-          "learnUrl": "https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/"
         },
         {
           "name": "types",
@@ -276,15 +238,6 @@
           "learnUrl": "https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/"
         },
         {
-          "name": "saName",
-          "viewName": "Service Account Name",
-          "required": false,
-          "type": "string",
-          "description": "The name of the service account associated with the token",
-          "placeholder": "username",
-          "learnUrl": "https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/"
-        },
-        {
           "name": "name",
           "viewName": "Name *",
           "required": false,
@@ -308,14 +261,6 @@
       "name": "cliGetServices",
       "viewName": "CLI - Get Services",
       "params": [
-        {
-          "name": "SUDO",
-          "viewName": "Sudo",
-          "required": false,
-          "type": "boolean",
-          "description": "Running with sudo elevates privilges to run kubectl as the root user (superuser).",
-          "learnUrl": "https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/"
-        },
         {
           "name": "namespace",
           "viewName": "Namespace",
@@ -357,28 +302,6 @@
           "description": "A Kubernetes service is a logical abstraction for a deployed group of pods in a cluster (which all perform the same function). Since pods are ephemeral, a service enables a group of pods, which provide specific functions (web services, image processing, etc.) to be assigned a name and unique IP address (clusterIP).",
           "placeholder": "mydeployment.",
           "learnUrl": "https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands"
-        },
-        {
-          "name": "SUDO",
-          "viewName": "Sudo",
-          "required": false,
-          "type": "boolean",
-          "description": "Running with sudo elevates privilges to run kubectl as the root user (superuser).",
-          "learnUrl": "https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/"
-        }
-      ]
-    },
-    {
-      "name": "cliGetPods",
-      "viewName": "CLI - Get Pods",
-      "params": [
-        {
-          "name": "SUDO",
-          "viewName": "Sudo",
-          "required": false,
-          "type": "boolean",
-          "description": "Running with sudo elevates privilges to run kubectl as the root user (superuser).",
-          "learnUrl": "https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/"
         }
       ]
     },
@@ -412,22 +335,17 @@
           "learnUrl": "https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/"
         },
         {
-          "name": "saName",
-          "viewName": "Service Account Name",
-          "required": false,
-          "type": "string",
-          "description": "The name of the service account associated with the token",
-          "placeholder": "clusteruser1",
-          "learnUrl": "https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/"
-        },
-        {
           "name": "namespace",
           "viewName": "Namespace",
-          "required": false,
+          "description": "The namespace to search for services in. To search all namespaces use '*'. Default: 'default'",
           "type": "string",
-          "description": "The namespace name if not \"default\"",
-          "placeholder": "default",
-          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
+          "placeholder": "default"
+        },
+        {
+          "name": "labelsFilter",
+          "viewName": "Labels Filter",
+          "description": "Labels to filter the results by. (One per line)",
+          "type": "text"
         }
       ]
     }
