@@ -76,13 +76,12 @@
         },
         {
           "name": "yamlPath",
-          "viewName": "Yaml File Path *",
-          "required": false,
+          "viewName": "Yaml File Path",
+          "required": true,
           "type": "string",
           "description": "Path to YAML file on agent",
           "placeholder": "yamlrepo/deploy-nginx.yaml",
-          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/",
-          "required": true
+          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/"
         },
         {
           "name": "namespace",
@@ -129,9 +128,7 @@
           "viewName": "Dry-run",
           "required": false,
           "type": "options",
-          "description": "Dry run is not a concept exclusive to Kubernetes. It's an expression used to indicate a rehearsal of a performance or procedure before the real one. Dry run mode gives you the possibility of issuing a command without side effects for testing an actual command that you intend to run.",
           "placeholder": "select using drop-down",
-          "learnUrl": "https://kubernetes.io/blog/2019/01/14/apiserver-dry-run-and-kubectl-diff/",
           "options": [
             {
               "id": "none",
@@ -304,6 +301,10 @@
           "learnUrl": "https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands"
         }
       ]
+    },
+    {
+      "name": "cliGetPods",
+      "viewName": "CLI - Get Pods"
     },
     {
       "name": "getAllServices",
