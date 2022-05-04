@@ -55,7 +55,7 @@
           "required": false,
           "type": "string",
           "description": "The endpoint URL used to connect to the cluster",
-          "placeholder": "https://10.0.1.149:443",
+          "placeholder": "https://10.0.32.149:443",
           "learnUrl": "https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/"
         },
         {
