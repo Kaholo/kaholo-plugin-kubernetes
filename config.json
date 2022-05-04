@@ -4,7 +4,7 @@
   "imgUrl": "kubernetes.png",
   "execProgram": "node",
   "main": "app.js",
-  "version": "1.5.0",
+  "version": "1.6.3",
   "description": "Integration with Kubernetes API and CLI.",
   "category": [
     "CLOUD",
@@ -42,21 +42,6 @@
       "type": "vault",
       "description": "The token to use for authentication to the service account on default.",
       "learnUrl": "https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/"
-    },
-    {
-      "name": "saName",
-      "viewName": "Service Account Name",
-      "type": "string",
-      "description": "The name of the default service account to use for authentication.",
-      "placeholder": "username",
-      "learnUrl": "https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/"
-    },
-    {
-      "name": "SUDO",
-      "viewName": "Sudo CLI commands",
-      "type": "boolean",
-      "description": "If true, run all CLI commands with the Sudo command. The sudo command allows you to run programs with the security privileges of another user (by default, as the superuser). It prompts you for your personal password and confirms your request to execute a command by checking a file, called sudoers , which the system administrator configures.",
-      "learnUrl": "https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/"
     }
   ],
   "methods": [
@@ -87,20 +72,13 @@
           "learnUrl": "https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/"
         },
         {
-          "name": "saName",
-          "viewName": "Service Account Name",
-          "type": "string",
-          "description": "Kubernetes service accounts are Kubernetes resources, created and managed using the Kubernetes API, meant to be used by in-cluster Kubernetes-created entities, such as Pods, to authenticate to the Kubernetes API server or external services.",
-          "placeholder": "username",
-          "learnUrl": "https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/"
-        },
-        {
           "name": "yamlPath",
           "viewName": "Yaml File Path",
           "type": "string",
           "description": "Yaml File full Path to create the update.",
           "placeholder": "/path/to/file",
-          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/"
+          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/",
+          "required": true
         },
         {
           "name": "namespace",
@@ -158,13 +136,6 @@
           ],
           "description": "Dry run is not a concept exclusive to Kubernetes. It's an expression used to indicate a rehearsal of a performance or procedure before the real one. Dry run mode gives you the possibility of issuing a command without side effects for testing an actual command that you intend to run.",
           "learnUrl": "https://kubernetes.io/blog/2019/01/14/apiserver-dry-run-and-kubectl-diff/"
-        },
-        {
-          "name": "SUDO",
-          "viewName": "Sudo",
-          "type": "boolean",
-          "description": "The sudo command allows you to run programs with the security privileges of another user (by default, as the superuser). It prompts you for your personal password and confirms your request to execute a command by checking a file, called sudoers , which the system administrator configures.",
-          "learnUrl": "https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/"
         }
       ]
     },
@@ -193,14 +164,6 @@
           "type": "vault",
           "description": "A service account has an associated service account authentication token, which is stored as a Kubernetes secret.",
           "learnUrl": "https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/"
-        },
-        {
-          "name": "saName",
-          "viewName": "Service Account Name",
-          "type": "string",
-          "description": "Kubernetes service accounts are Kubernetes resources, created and managed using the Kubernetes API, meant to be used by in-cluster Kubernetes-created entities, such as Pods, to authenticate to the Kubernetes API server or external services.",
-          "placeholder": "username",
-          "learnUrl": "https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/"
         },
         {
           "name": "types",
@@ -254,14 +217,6 @@
           "learnUrl": "https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/"
         },
         {
-          "name": "saName",
-          "viewName": "Service Account Name",
-          "type": "string",
-          "description": "Kubernetes service accounts are Kubernetes resources, created and managed using the Kubernetes API, meant to be used by in-cluster Kubernetes-created entities, such as Pods, to authenticate to the Kubernetes API server or external services.",
-          "placeholder": "username",
-          "learnUrl": "https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/"
-        },
-        {
           "name": "name",
           "viewName": "Name",
           "type": "string",
@@ -283,13 +238,6 @@
       "name": "cliGetServices",
       "viewName": "CLI - Get Services",
       "params": [
-        {
-          "name": "SUDO",
-          "viewName": "Sudo",
-          "type": "boolean",
-          "description": "The sudo command allows you to run programs with the security privileges of another user (by default, as the superuser). It prompts you for your personal password and confirms your request to execute a command by checking a file, called sudoers , which the system administrator configures.",
-          "learnUrl": "https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/"
-        },
         {
           "name": "namespace",
           "viewName": "Namespace",
@@ -329,28 +277,12 @@
           "description": "A Kubernetes service is a logical abstraction for a deployed group of pods in a cluster (which all perform the same function). Since pods are ephemeral, a service enables a group of pods, which provide specific functions (web services, image processing, etc.) to be assigned a name and unique IP address (clusterIP).",
           "placeholder": "mydeployment.",
           "learnUrl": "https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands"
-        },
-        {
-          "name": "SUDO",
-          "viewName": "Sudo",
-          "type": "boolean",
-          "description": "The sudo command allows you to run programs with the security privileges of another user (by default, as the superuser). It prompts you for your personal password and confirms your request to execute a command by checking a file, called sudoers , which the system administrator configures.",
-          "learnUrl": "https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/"
         }
       ]
     },
     {
       "name": "cliGetPods",
-      "viewName": "CLI - Get Pods",
-      "params": [
-        {
-          "name": "SUDO",
-          "viewName": "Sudo",
-          "type": "boolean",
-          "description": "The sudo command allows you to run programs with the security privileges of another user (by default, as the superuser). It prompts you for your personal password and confirms your request to execute a command by checking a file, called sudoers , which the system administrator configures.",
-          "learnUrl": "https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/"
-        }
-      ]
+      "viewName": "CLI - Get Pods"
     },
     {
       "name": "getAllServices",
@@ -372,15 +304,17 @@
           "type": "vault"
         },
         {
-          "name": "saName",
-          "viewName": "Service Account Name",
-          "type": "string"
-        },
-        {
           "name": "namespace",
           "viewName": "Namespace",
+          "description": "The namespace to search for services in. To search all namespaces use '*'. Default: 'default'",
           "type": "string",
           "placeholder": "default"
+        },
+        {
+          "name": "labelsFilter",
+          "viewName": "Labels Filter",
+          "description": "Labels to filter the results by. (One per line)",
+          "type": "text"
         }
       ]
     }
