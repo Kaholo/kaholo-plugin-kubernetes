@@ -1,24 +1,29 @@
 {
   "name": "Kubernetes",
   "type": "executer",
-  "imgUrl": "kubernetes.png",
+  "imgUrl": "logo.png",
   "execProgram": "node",
   "main": "app.js",
-  "version": "1.6.3",
-  "description": "Integration with Kubernetes API and CLI.",
+  "version": "1.6.4",
+  "description": "Deploy Apps and Manage Kuberentes Clusters with API and/or kubectl",
   "category": [
-    "CLOUD",
-    "CONTAINERS"
+    "Containers"
   ],
   "keywords": [
     "kubernetes",
-    "k8",
     "k8s",
     "cloud",
     "container",
     "cluster",
-    "API",
-    "CLI"
+    "api",
+    "cli",
+    "pods",
+    "docker",
+    "image",
+    "gke",
+    "aks",
+    "eks",
+    "kubectl"
   ],
   "settings": [
     {
