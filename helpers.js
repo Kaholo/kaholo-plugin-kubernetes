@@ -24,13 +24,13 @@ function parseErr(err) {
 }
 
 /**
- * Extracts the service account name from the access token
- * @param {string} token
+ * Extracts the service account name from the access kubeToken
+ * @param {string} kubeToken
  * @returns {string}
  */
-function extractServiceAccountName(token) {
+function extractServiceAccountName(kubeToken) {
   try {
-    const decoded = decodeBase64(token.split(".")[1]);
+    const decoded = decodeBase64(kubeToken.split(".")[1]);
     const parsed = JSON.parse(decoded);
     const name = parsed["kubernetes.io/serviceaccount/service-account.name"];
     if (!name) {
@@ -47,19 +47,19 @@ function extractServiceAccountName(token) {
 /**
  * Checks the configuration
  * @param {{
- *  caCert: string;
- *  endpointUrl: string;
- *  token: string;
+ *  kubeCertificate: string;
+ *  kubeApiServer: string;
+ *  kubeToken: string;
  * }} config
  */
-function validateConfig({ caCert, endpointUrl, token }) {
-  if (!caCert.trim()) {
+function validateConfig({ kubeCertificate, kubeApiServer, kubeToken }) {
+  if (!kubeCertificate.trim()) {
     throw createMissingParamMessage("Certificate Authority");
   }
-  if (!endpointUrl.trim()) {
+  if (!kubeApiServer.trim()) {
     throw createMissingParamMessage("Endpoint URL");
   }
-  if (!token.trim()) {
+  if (!kubeToken.trim()) {
     throw createMissingParamMessage("Service Account Token");
   }
 }
@@ -70,21 +70,21 @@ function validateConfig({ caCert, endpointUrl, token }) {
  * @returns {k8s.KubeConfig}
  */
 function getConfig(params, settings) {
-  const caCert = params.caCert || settings.caCert;
-  const endpointUrl = params.endpointUrl || settings.endpointUrl;
-  const token = params.token || settings.token;
-  validateConfig({ caCert, token, endpointUrl });
-  const saName = extractServiceAccountName(token) || "kaholo-sa";
+  const kubeCertificate = params.kubeCertificate || settings.kubeCertificate;
+  const kubeApiServer = params.kubeApiServer || settings.kubeApiServer;
+  const kubeToken = params.kubeToken || settings.kubeToken;
+  validateConfig({ kubeCertificate, kubeToken, kubeApiServer });
+  const saName = extractServiceAccountName(kubeToken) || "kaholo-sa";
 
   // define options
   const user = {
     name: saName,
-    user: { token },
+    user: { kubeToken },
   };
   const cluster = {
     cluster: {
-      "certificate-authority-data": caCert,
-      server: endpointUrl,
+      "certificate-authority-data": kubeCertificate,
+      server: kubeApiServer,
     },
     name: `${saName}-cluster`,
   };
