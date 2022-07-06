@@ -83,30 +83,23 @@
           "required": false,
           "type": "string",
           "placeholder": "default",
+          "default": "default",
           "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
         }
       ]
     },
     {
-      "name": "deleteObject",
-      "viewName": "Delete Object",
+      "name": "deleteObjects",
+      "viewName": "Delete Objects",
       "params": [
         {
-          "name": "types",
-          "viewName": "Types *",
-          "required": false,
+          "name": "objectsMap",
+          "viewName": "Objects map",
+          "required": true,
           "type": "text",
-          "description": "Kubernetes objects are entities that are used to represent the state of the cluster. An object is a “record of intent” - once created, the cluster does its best to ensure it exists as defined. This is known as the cluster's “desired state.”.",
-          "placeholder": "Pods | Namespaces | services | etc.",
-          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/"
-        },
-        {
-          "name": "names",
-          "viewName": "Names *",
-          "required": false,
-          "type": "text",
-          "description": "Each object in your cluster has a Name that is unique for that type of resource.",
-          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/names/"
+          "parserType": "array",
+          "description": "<object_type> <object_name> pairs separated with new lines",
+          "placeholder": "pod mongo-123a\nservice payments-999z"
         },
         {
           "name": "namespace",
@@ -124,8 +117,8 @@
       "params": [
         {
           "name": "name",
-          "viewName": "Name *",
-          "required": false,
+          "viewName": "Name",
+          "required": true,
           "type": "string",
           "description": "The name of the service to describe (or get)",
           "placeholder": "myservice",
@@ -149,7 +142,9 @@
           "name": "labelsFilter",
           "viewName": "Labels Filter",
           "description": "Labels to filter the results by. (One per line)",
-          "type": "text"
+          "required": false,
+          "type": "text",
+          "parserType": "array"
         },
         {
           "name": "namespace",
@@ -162,107 +157,25 @@
       ]
     },
     {
-      "name": "cliApply",
-      "viewName": "CLI - Apply",
+      "name": "runKubectlCommand",
+      "viewName": "Run Kubectl Command",
       "params": [
         {
-          "name": "FILE_PATH",
-          "viewName": "File Path *",
+          "name": "command",
+          "viewName": "command",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "namespace",
+          "viewName": "Namespace",
           "required": false,
           "type": "string",
-          "description": "The path to the yml file to apply.",
-          "placeholder": "/path/to/file",
+          "placeholder": "default",
+          "default": "default",
           "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
-        },
-        {
-          "name": "FORCE",
-          "viewName": "Force",
-          "required": false,
-          "type": "boolean",
-          "description": "If true, immediately remove resources from API and bypass graceful deletion. Default value is false.",
-          "learnUrl": "https://kubernetes.io/docs/concepts/cluster-administration/manage-deployment/"
-        },
-        {
-          "name": "NO_OVERWRITE",
-          "viewName": "Don't Overwrite",
-          "required": false,
-          "type": "boolean",
-          "description": "Do not automatically resolve conflicts between the modified and live configuration by using values from the modified configuration.",
-          "learnUrl": "https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands"
-        },
-        {
-          "name": "DRY_RUN",
-          "viewName": "Dry-run",
-          "required": false,
-          "type": "options",
-          "placeholder": "select using drop-down",
-          "options": [
-            {
-              "id": "none",
-              "name": "none"
-            },
-            {
-              "id": "server",
-              "name": "server"
-            },
-            {
-              "id": "client",
-              "name": "client"
-            }
-          ],
-          "description": "Dry run is not a concept exclusive to Kubernetes. It's an expression used to indicate a rehearsal of a performance or procedure before the real one. Dry run mode gives you the possibility of issuing a command without side effects for testing an actual command that you intend to run.",
-          "learnUrl": "https://kubernetes.io/blog/2019/01/14/apiserver-dry-run-and-kubectl-diff/"
         }
       ]
-    },
-    {
-      "name": "cliGetServices",
-      "viewName": "CLI - Get Services",
-      "params": [{
-        "name": "namespace",
-        "viewName": "Namespace",
-        "required": false,
-        "type": "string",
-        "placeholder": "default",
-        "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
-      }]
-    },
-    {
-      "name": "cliExposeDeployment",
-      "viewName": "CLI - Expose Deployment",
-      "params": [
-        {
-          "name": "DEPLOYMENT",
-          "viewName": "Deployment *",
-          "required": false,
-          "type": "string",
-          "description": "A Deployment runs multiple replicas of your application and automatically replaces any instances that fail or become unresponsive. In this way, Deployments help ensure that one or more instances of your application are available to serve user requests. Deployments are managed by the Kubernetes Deployment controller.",
-          "placeholder": "deployment_name",
-          "learnUrl": "https://kubernetes.io/docs/tutorials/kubernetes-basics/deploy-app/deploy-intro/"
-        },
-        {
-          "name": "TYPE",
-          "viewName": "Type *",
-          "required": false,
-          "type": "string",
-          "description": "Kubernetes objects are entities that are used to represent the state of the cluster. An object is a “record of intent” - once created, the cluster does its best to ensure it exists as defined. This is known as the cluster's “desired state.”.",
-          "placeholder": "Pods | Namespaces | services | etc.",
-          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/"
-        },
-        {
-          "name": "NAME",
-          "viewName": "Name *",
-          "required": false,
-          "type": "string",
-          "description": "A Kubernetes service is a logical abstraction for a deployed group of pods in a cluster (which all perform the same function). Since pods are ephemeral, a service enables a group of pods, which provide specific functions (web services, image processing, etc.) to be assigned a name and unique IP address (clusterIP).",
-          "placeholder": "mydeployment.",
-          "learnUrl": "https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands"
-        }
-      ]
-    },
-    {
-      "name": "cliGetPods",
-      "viewName": "CLI - Get Pods"
     }
   ]
 }
