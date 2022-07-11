@@ -52,14 +52,6 @@
         "description": "The endpoint URL used to connect to the cluster",
         "placeholder": "https://10.0.32.149:443",
         "learnUrl": "https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/"
-      },
-      {
-        "name": "namespace",
-        "viewName": "Namespace",
-        "required": false,
-        "type": "string",
-        "placeholder": "default",
-        "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
       }
     ]
   },
@@ -76,6 +68,14 @@
           "description": "Path to YAML file on agent",
           "placeholder": "yamlrepo/deploy-nginx.yaml",
           "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/"
+        },
+        {
+          "name": "namespace",
+          "viewName": "Namespace",
+          "required": false,
+          "type": "string",
+          "placeholder": "default",
+          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
         }
       ]
     },
@@ -99,6 +99,14 @@
           "type": "text",
           "description": "Each object in your cluster has a Name that is unique for that type of resource.",
           "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/names/"
+        },
+        {
+          "name": "namespace",
+          "viewName": "Namespace",
+          "required": false,
+          "type": "string",
+          "placeholder": "default",
+          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
         }
       ]
     },
@@ -114,6 +122,14 @@
           "description": "The name of the service to describe (or get)",
           "placeholder": "myservice",
           "learnUrl": "https://kubernetes.io/docs/concepts/services-networking/service/"
+        },
+        {
+          "name": "namespace",
+          "viewName": "Namespace",
+          "required": false,
+          "type": "string",
+          "placeholder": "default",
+          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
         }
       ]
     },
@@ -126,6 +142,14 @@
           "viewName": "Labels Filter",
           "description": "Labels to filter the results by. (One per line)",
           "type": "text"
+        },
+        {
+          "name": "namespace",
+          "viewName": "Namespace",
+          "required": false,
+          "type": "string",
+          "placeholder": "default",
+          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
         }
       ]
     },
@@ -185,7 +209,15 @@
     },
     {
       "name": "cliGetServices",
-      "viewName": "CLI - Get Services"
+      "viewName": "CLI - Get Services",
+      "params": [{
+        "name": "namespace",
+        "viewName": "Namespace",
+        "required": false,
+        "type": "string",
+        "placeholder": "default",
+        "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
+      }]
     },
     {
       "name": "cliExposeDeployment",
