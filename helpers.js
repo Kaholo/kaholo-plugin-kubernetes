@@ -1,7 +1,6 @@
 const k8s = require("@kubernetes/client-node");
 // Constructors
 const { newClusters, newContexts, newUsers } = require("@kubernetes/client-node/dist/config_types");
-const { CoreV1Api } = require("@kubernetes/client-node");
 
 const UNAUTHORIZED_ERROR_MESSAGE = "Please ensure the Service Account Token is vaulted in the correct format and that your service account has sufficient privileges to perform this operation. Consult the plugin documentation for more details.";
 const EXTRACTION_FAILED_MESSAGE = "Error occured while extracting the Service Account name from the Access Token. Make sure you pass the valid Access Token.";
@@ -110,7 +109,7 @@ function getConfig(params) {
   return kc;
 }
 
-function createK8sClient({
+function createK8sClient(api, {
   kubeCertificate,
   kubeApiServer,
   kubeToken,
@@ -120,7 +119,7 @@ function createK8sClient({
     kubeApiServer,
     kubeToken,
   });
-  const k8sClient = config.makeApiClient(CoreV1Api);
+  const k8sClient = config.makeApiClient(api);
 
   return k8sClient;
 }

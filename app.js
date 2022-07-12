@@ -1,45 +1,29 @@
-/* eslint-disable no-await-in-loop */
-const yaml = require("js-yaml");
-const fs = require("fs");
-const { KubernetesObjectApi, CoreV1Api } = require("@kubernetes/client-node");
 const { bootstrap } = require("@kaholo/plugin-library");
+const { CoreV1Api, KubernetesObjectApi } = require("@kubernetes/client-node");
 
-const {
-  getConfig, getDeleteFunc, runDeleteFunc, parseErr, applyBySpec, createK8sClient,
-} = require("./helpers");
 const k8sLib = require("./k8s-library");
 const { runKubectlCommand } = require("./kubectl");
 
+const {
+  getConfig, getDeleteFunc, runDeleteFunc, createK8sClient,
+} = require("./helpers");
+
 async function apply(params) {
   const {
+    kubeCertificate,
+    kubeApiServer,
+    kubeToken,
     yamlPath,
     namespace,
   } = params;
 
-  /**
-  * @type {k8s-library.js.KubernetesObject[]}
-  * Get all deployments/specs from yaml file and filter the valid ones
-  */
-  const specs = yaml.loadAll(fs.readFileSync(yamlPath)).filter((s) => s && s.kind && s.metadata);
-  const kc = getConfig(params);
-  const client = kc.makeApiClient(KubernetesObjectApi);
-  const created = [];
-  for (const spec of specs) {
-    if (namespace && !spec.metadata.namespace && spec.kind !== "Namespace") {
-      spec.metadata.namespace = namespace;
-    }
-    spec.metadata.annotations = spec.metadata.annotations || {};
-    delete spec.metadata.annotations["kubectl.kubernetes.io/last-applied-configuration"];
-    spec.metadata.annotations["kubectl.kubernetes.io/last-applied-configuration"] = JSON.stringify(spec);
-    try {
-      const response = await applyBySpec(client, spec);
-      created.push(response.body);
-    } catch (err) {
-      created.push(parseErr(err));
-      throw created;
-    }
-  }
-  return created;
+  const k8sClient = createK8sClient(KubernetesObjectApi, {
+    kubeCertificate,
+    kubeApiServer,
+    kubeToken,
+  });
+
+  return k8sLib.apply(k8sClient, { yamlPath, namespace });
 }
 
 async function deleteObject(params) {
@@ -83,52 +67,20 @@ async function deleteObject(params) {
 
 async function getAllServices(params) {
   const {
-    namespace,
+    kubeCertificate,
+    kubeApiServer,
+    kubeToken,
     labelsFilter,
+    namespace,
   } = params;
 
-  const kc = getConfig(params);
-  const client = kc.makeApiClient(CoreV1Api);
-
-  let filtersArray = [];
-  if (labelsFilter) {
-    filtersArray = Array.isArray(labelsFilter) ? labelsFilter : labelsFilter.split("\n");
-  }
-
-  const filters = filtersArray.map((f) => {
-    const [key, value] = f.split("=");
-    return { key, value };
+  const k8sClient = createK8sClient(CoreV1Api, {
+    kubeCertificate,
+    kubeApiServer,
+    kubeToken,
   });
-  try {
-    if (namespace === "*") {
-      const namespaces = await client.listNamespace();
-      const listServicesPromises = namespaces.body.items.map(
-        (namespaceObj) => client.listNamespacedService(namespaceObj.metadata.name),
-      );
-      const [...serviceResults] = await Promise.all(listServicesPromises);
-      const allServices = [];
-      serviceResults.forEach((serviceResult) => {
-        const filteredServices = serviceResult.body.items.filter((service) => {
-          for (let i = 0, length = filters.length; i < length; i += 1) {
-            const isFilterValid = service.metadata.labels && service.metadata.labels[filters[i].key]
-              && service.metadata.labels[filters[i].key] === filters[i].value;
 
-            if (!isFilterValid) {
-              return false;
-            }
-          }
-          return true;
-        });
-
-        allServices.push(...filteredServices);
-      });
-      return allServices;
-    }
-    const res = await client.listNamespacedService(namespace || "default");
-    return res.body.items;
-  } catch (err) {
-    throw parseErr(err);
-  }
+  return k8sLib.getAllServices(k8sClient, { labelsFilter, namespace });
 }
 
 async function getService(params) {
@@ -140,7 +92,7 @@ async function getService(params) {
     namespace,
   } = params;
 
-  const k8sClient = createK8sClient({
+  const k8sClient = createK8sClient(CoreV1Api, {
     kubeCertificate,
     kubeApiServer,
     kubeToken,
