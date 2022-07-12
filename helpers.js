@@ -210,14 +210,6 @@ function getDeleteFunc(kc, resourceType) {
   return delFunc;
 }
 
-function parseArr(arr) {
-  if (Array.isArray(arr)) { return arr; }
-  if (!arr) { return []; }
-  if (typeof (arr) !== "string") { throw "Must be of type string or array"; }
-
-  return arr.split("\n").map((line) => line.trim()).filter((line) => line);
-}
-
 async function runDeleteFunc(deleteFunc, resourceType, name, namespace) {
   const deleteObj = {
     type: resourceType,
@@ -240,7 +232,6 @@ async function runDeleteFunc(deleteFunc, resourceType, name, namespace) {
 
 module.exports = {
   getConfig,
-  parseArr,
   runDeleteFunc,
   getDeleteFunc,
   parseErr,

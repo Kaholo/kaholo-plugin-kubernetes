@@ -6,7 +6,7 @@ const { newClusters, newContexts, newUsers } = require("@kubernetes/client-node/
 const { bootstrap } = require("@kaholo/plugin-library");
 
 const {
-  getConfig, parseArr, getDeleteFunc, runDeleteFunc, parseErr,
+  getConfig, getDeleteFunc, runDeleteFunc, parseErr,
 } = require("./helpers");
 const cliApp = require("./app.cli");
 
