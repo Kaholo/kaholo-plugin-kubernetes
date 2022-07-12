@@ -7,7 +7,7 @@ const { bootstrap } = require("@kaholo/plugin-library");
 const {
   getConfig, getDeleteFunc, runDeleteFunc, parseErr, applyBySpec,
 } = require("./helpers");
-const cliApp = require("./app.cli");
+const { runKubectlCommand } = require("./kubectl");
 
 async function apply(params) {
   const {
@@ -146,5 +146,5 @@ module.exports = bootstrap({
   deleteObject,
   getService,
   getAllServices,
-  ...cliApp,
+  runKubectlCommand,
 });
