@@ -5,8 +5,9 @@ const { KubernetesObjectApi, CoreV1Api } = require("@kubernetes/client-node");
 const { bootstrap } = require("@kaholo/plugin-library");
 
 const {
-  getConfig, getDeleteFunc, runDeleteFunc, parseErr, applyBySpec,
+  getConfig, getDeleteFunc, runDeleteFunc, parseErr, applyBySpec, createK8sClient,
 } = require("./helpers");
+const k8sLib = require("./k8s-library");
 const { runKubectlCommand } = require("./kubectl");
 
 async function apply(params) {
@@ -16,7 +17,7 @@ async function apply(params) {
   } = params;
 
   /**
-  * @type {k8s.KubernetesObject[]}
+  * @type {k8s-library.js.KubernetesObject[]}
   * Get all deployments/specs from yaml file and filter the valid ones
   */
   const specs = yaml.loadAll(fs.readFileSync(yamlPath)).filter((s) => s && s.kind && s.metadata);
@@ -85,8 +86,10 @@ async function getAllServices(params) {
     namespace,
     labelsFilter,
   } = params;
+
   const kc = getConfig(params);
   const client = kc.makeApiClient(CoreV1Api);
+
   let filtersArray = [];
   if (labelsFilter) {
     filtersArray = Array.isArray(labelsFilter) ? labelsFilter : labelsFilter.split("\n");
@@ -129,16 +132,21 @@ async function getAllServices(params) {
 }
 
 async function getService(params) {
-  const { name, namespace } = params;
+  const {
+    kubeCertificate,
+    kubeApiServer,
+    kubeToken,
+    name,
+    namespace,
+  } = params;
 
-  const kc = getConfig(params);
-  const client = kc.makeApiClient(CoreV1Api);
-  try {
-    const res = await client.readNamespacedService(name, namespace || "default");
-    return res.body;
-  } catch (err) {
-    throw parseErr(err);
-  }
+  const k8sClient = createK8sClient({
+    kubeCertificate,
+    kubeApiServer,
+    kubeToken,
+  });
+
+  return k8sLib.getService(k8sClient, { name, namespace });
 }
 
 module.exports = bootstrap({

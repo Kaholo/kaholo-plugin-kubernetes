@@ -1,6 +1,7 @@
 const k8s = require("@kubernetes/client-node");
 // Constructors
 const { newClusters, newContexts, newUsers } = require("@kubernetes/client-node/dist/config_types");
+const { CoreV1Api } = require("@kubernetes/client-node");
 
 const UNAUTHORIZED_ERROR_MESSAGE = "Please ensure the Service Account Token is vaulted in the correct format and that your service account has sufficient privileges to perform this operation. Consult the plugin documentation for more details.";
 const EXTRACTION_FAILED_MESSAGE = "Error occured while extracting the Service Account name from the Access Token. Make sure you pass the valid Access Token.";
@@ -107,6 +108,21 @@ function getConfig(params) {
     currentContext: context.name,
   });
   return kc;
+}
+
+function createK8sClient({
+  kubeCertificate,
+  kubeApiServer,
+  kubeToken,
+}) {
+  const config = getConfig({
+    kubeCertificate,
+    kubeApiServer,
+    kubeToken,
+  });
+  const k8sClient = config.makeApiClient(CoreV1Api);
+
+  return k8sClient;
 }
 
 function getDeleteFuncName(resourceType) {
@@ -240,6 +256,7 @@ async function applyBySpec(client, spec) {
 }
 
 module.exports = {
+  createK8sClient,
   getConfig,
   runDeleteFunc,
   getDeleteFunc,
