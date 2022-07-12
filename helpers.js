@@ -69,10 +69,13 @@ function validateConfig({ kubeCertificate, kubeApiServer, kubeToken }) {
  * @param {*} settings
  * @returns {k8s.KubeConfig}
  */
-function getConfig(params, settings) {
-  const kubeCertificate = params.kubeCertificate || settings.kubeCertificate;
-  const kubeApiServer = params.kubeApiServer || settings.kubeApiServer;
-  const kubeToken = params.kubeToken || settings.kubeToken;
+function getConfig(params) {
+  const {
+    kubeCertificate,
+    kubeApiServer,
+    kubeToken,
+  } = params;
+
   validateConfig({ kubeCertificate, kubeToken, kubeApiServer });
   const saName = extractServiceAccountName(kubeToken) || "kaholo-sa";
 

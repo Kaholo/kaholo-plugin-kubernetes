@@ -3,6 +3,8 @@ const yaml = require("js-yaml");
 const fs = require("fs");
 const { KubernetesObjectApi, CoreV1Api, KubeConfig } = require("@kubernetes/client-node");
 const { newClusters, newContexts, newUsers } = require("@kubernetes/client-node/dist/config_types");
+const { bootstrap } = require("@kaholo/plugin-library");
+
 const {
   getConfig, parseArr, getDeleteFunc, runDeleteFunc, parseErr,
 } = require("./helpers");
@@ -17,18 +19,18 @@ async function applyBySpec(client, spec) {
   return client.patch(spec);
 }
 
-async function apply(action, settings) {
-  const yamlPath = (action.params.yamlPath || "").trim();
-  const namespace = (action.params.namespace || "").trim();
-  if (!yamlPath) {
-    throw "Not given yaml file path";
-  }
+async function apply(params) {
+  const {
+    yamlPath,
+    namespace,
+  } = params;
+
   /**
   * @type {k8s.KubernetesObject[]}
   * Get all deployments/specs from yaml file and filter the valid ones
   */
   const specs = yaml.loadAll(fs.readFileSync(yamlPath)).filter((s) => s && s.kind && s.metadata);
-  const kc = getConfig(action.params, settings);
+  const kc = getConfig(params);
   const client = kc.makeApiClient(KubernetesObjectApi);
   const created = [];
   for (const spec of specs) {
@@ -49,14 +51,14 @@ async function apply(action, settings) {
   return created;
 }
 
-async function deleteObject(action, settings) {
-  const types = parseArr(action.params.types);
-  const names = parseArr(action.params.names);
-  const namespace = (action.params.namespace || "").trim();
-  if (types.length < 1 || names.length < 1) {
-    throw "One of the required parameters was not passed!";
-  }
-  const kc = getConfig(action.params, settings);
+async function deleteObject(params) {
+  const {
+    types,
+    names,
+    namespace,
+  } = params;
+
+  const kc = getConfig(params);
 
   const [promises, deleted, failed] = [[], [], []]; // initiate with empty lists
   const deleteFuncs = types.map((resourceType) => {
@@ -88,9 +90,12 @@ async function deleteObject(action, settings) {
   return returnVal;
 }
 
-async function getAllServices(action, settings) {
-  const { namespace, labelsFilter } = action.params;
-  const kc = getConfig(action.params, settings);
+async function getAllServices(params) {
+  const {
+    namespace,
+    labelsFilter,
+  } = params;
+  const kc = getConfig(params);
   const client = kc.makeApiClient(CoreV1Api);
   let filtersArray = [];
   if (labelsFilter) {
@@ -133,12 +138,10 @@ async function getAllServices(action, settings) {
   }
 }
 
-async function getService(action, settings) {
-  const { name, namespace } = action.params;
-  if (!name) {
-    throw "Didn't provide service name";
-  }
-  const kc = getConfig(action.params, settings);
+async function getService(params) {
+  const { name, namespace } = params;
+
+  const kc = getConfig(params);
   const client = kc.makeApiClient(CoreV1Api);
   try {
     const res = await client.readNamespacedService(name, namespace || "default");
@@ -148,13 +151,13 @@ async function getService(action, settings) {
   }
 }
 
-async function test(action, settings) {
+async function test(params) {
   const {
     kubeApiServer,
     kubeToken,
     kubeCertificate,
-    namespace
-  } = action.params;
+    namespace,
+  } = params;
 
   const cluster = {
     cluster: {
@@ -196,7 +199,7 @@ async function test(action, settings) {
   return res.body;
 }
 
-module.exports = {
+module.exports = bootstrap({
   apply,
   deleteObject,
   getService,
@@ -204,4 +207,4 @@ module.exports = {
   test,
   // CLI methods
   ...cliApp,
-};
+});
