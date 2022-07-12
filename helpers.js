@@ -79,7 +79,7 @@ function getConfig(params, settings) {
   // define options
   const user = {
     name: saName,
-    user: { kubeToken },
+    user: { token: kubeToken },
   };
   const cluster = {
     cluster: {
