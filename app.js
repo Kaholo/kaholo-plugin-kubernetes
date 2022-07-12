@@ -1,23 +1,13 @@
 /* eslint-disable no-await-in-loop */
 const yaml = require("js-yaml");
 const fs = require("fs");
-const { KubernetesObjectApi, CoreV1Api, KubeConfig } = require("@kubernetes/client-node");
-const { newClusters, newContexts, newUsers } = require("@kubernetes/client-node/dist/config_types");
+const { KubernetesObjectApi, CoreV1Api } = require("@kubernetes/client-node");
 const { bootstrap } = require("@kaholo/plugin-library");
 
 const {
-  getConfig, getDeleteFunc, runDeleteFunc, parseErr,
+  getConfig, getDeleteFunc, runDeleteFunc, parseErr, applyBySpec,
 } = require("./helpers");
 const cliApp = require("./app.cli");
-
-async function applyBySpec(client, spec) {
-  try {
-    await client.read(spec);
-  } catch (err) {
-    return client.create(spec);
-  }
-  return client.patch(spec);
-}
 
 async function apply(params) {
   const {
@@ -151,60 +141,10 @@ async function getService(params) {
   }
 }
 
-async function test(params) {
-  const {
-    kubeApiServer,
-    kubeToken,
-    kubeCertificate,
-    namespace,
-  } = params;
-
-  const cluster = {
-    cluster: {
-      "certificate-authority-data": kubeCertificate,
-      skipTLSVerify: false,
-      server: kubeApiServer,
-    },
-    name: "hasherman-cluster",
-  };
-
-  const user = {
-    name: "hasherman",
-    user: {
-      token: kubeToken,
-    },
-  };
-
-  const context = {
-    context: {
-      cluster: cluster.name,
-      user: user.name,
-    },
-    name: "hasherman-context",
-  };
-
-  const kc = new KubeConfig();
-
-  kc.loadFromOptions({
-    clusters: newClusters([cluster]),
-    users: newUsers([user]),
-    contexts: newContexts([context]),
-    currentContext: context.name,
-  });
-
-  const k8sApi = kc.makeApiClient(CoreV1Api);
-
-  const res = await k8sApi.listNamespacedConfigMap(namespace || "hashstrings");
-
-  return res.body;
-}
-
 module.exports = bootstrap({
   apply,
   deleteObject,
   getService,
   getAllServices,
-  test,
-  // CLI methods
   ...cliApp,
 });

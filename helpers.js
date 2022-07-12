@@ -230,9 +230,19 @@ async function runDeleteFunc(deleteFunc, resourceType, name, namespace) {
   return deleteObj;
 }
 
+async function applyBySpec(client, spec) {
+  try {
+    await client.read(spec);
+  } catch (err) {
+    return client.create(spec);
+  }
+  return client.patch(spec);
+}
+
 module.exports = {
   getConfig,
   runDeleteFunc,
   getDeleteFunc,
   parseErr,
+  applyBySpec,
 };
