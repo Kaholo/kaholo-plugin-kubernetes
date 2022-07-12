@@ -1,6 +1,8 @@
 const util = require("util");
 const exec = util.promisify(require("child_process").exec);
 
+const KUBECTL_IMAGE_NAME = "bitnami/kubectl";
+
 async function exposeDeployment(action) {
   const { params } = action;
   const type = params.TYPE || "NodePort";
@@ -51,6 +53,13 @@ async function apply(action) {
   const args = [force, noOverwrite, dryRun].filter((arg) => arg);
   const execString = `kubectl apply -f ${action.params.FILE_PATH} ${args.join(" ")}`;
   return exec(execString);
+}
+
+async function runKubectlCommand(params) {
+  //TODO Check if KUBECONFIG is set and reuse it if it is
+  const command = "docker run --rm ";
+
+  return exec(command);
 }
 
 module.exports = {
