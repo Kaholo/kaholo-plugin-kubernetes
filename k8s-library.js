@@ -1,7 +1,13 @@
 const yaml = require("js-yaml");
 const fs = require("fs");
 
-const { parseErr, applyBySpec } = require("./helpers");
+const {
+  parseErr,
+  applyBySpec,
+  getConfig,
+  getDeleteFunc,
+  runDeleteFunc,
+} = require("./helpers");
 
 async function apply(client, { yamlPath, namespace }) {
   /**
@@ -81,8 +87,53 @@ async function getAllServices(client, { labelsFilter, namespace }) {
   }
 }
 
+async function deleteObjects(configParams, {
+  objectsTypes,
+  objectsNames,
+  namespace,
+}) {
+  const kubeConfig = getConfig(configParams);
+
+  const deleteFuncs = objectsTypes.map((resourceType) => {
+    const deleteFunc = getDeleteFunc(kubeConfig, resourceType);
+
+    const namespaced = deleteFunc.name.includes("Namespaced");
+    if (namespaced && !namespace) {
+      throw `Must specify namespace to delete object of type '${resourceType}`;
+    }
+
+    return { deleteFunc, resourceType, namespaced };
+  });
+
+  const [promises, deleted, failed] = [[], [], []]; // initiate with empty lists
+
+  deleteFuncs.forEach(({ deleteFunc, resourceType, namespaced }) => {
+    objectsNames.forEach((name) => {
+      // to run all deletes at once
+      promises.push(runDeleteFunc(deleteFunc, resourceType, name, namespaced ? namespace : null));
+    });
+  });
+
+  const results = await Promise.all(promises); // remove all empty results
+  results.forEach((deleteObj) => {
+    if (deleteObj.err) {
+      failed.push(deleteObj);
+    } else {
+      deleted.push(deleteObj);
+    }
+  });
+
+  const returnVal = { deleted, failed };
+  if (failed.length > 0 || deleted.length === 0) {
+    throw returnVal;
+  }
+
+  return returnVal;
+}
+
 module.exports = {
   apply,
   getService,
   getAllServices,
+  deleteObjects,
 };

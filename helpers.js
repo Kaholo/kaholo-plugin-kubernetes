@@ -191,37 +191,49 @@ function getDeleteFuncName(resourceType) {
   }
 }
 
-const apiToFuncs = [
-  {
-    api: k8s.CoreV1Api,
-    funcs: ["deleteNamespacedConfigMap", "deleteNamespacedEndpoints", "deleteNamespacedEvent",
-      "deleteNamespacedLimitRange", "deleteNamespace", "deleteNode", "deleteNamespacedPersistentVolumeClaim",
-      "deleteNamespacedPersistentVolume", "deleteNamespacedPod", "deleteNamespacedPodTemplate",
-      "deleteNamespacedReplicationController", "deleteNamespacedResourceQuota", "deleteNamespacedSecret",
-      "deleteNamespacedServiceAccount", "deleteNamespacedService"],
-  },
-  {
-    api: k8s.AppsV1Api,
-    funcs: ["deleteNamespacedDaemonSet", "deleteNamespacedDeployment", "deleteNamespacedReplicaSet",
-      "deleteNamespacedStatefulSet", "deleteNamespacedControllerRevision"],
-  },
-  { api: k8s.ExtensionsV1beta1Api, funcs: ["deleteNamespacedIngress", "deleteNamespacedNetworkPolicy", "deletePodSecurityPolicy"] },
-  { api: k8s.RbacAuthorizationV1Api, funcs: ["deleteClusterRoleBinding", "deleteClusterRole", "deleteClusterRoleBinding"] },
-  { api: k8s.BatchV1Api, funcs: ["deleteNamespacedJob"] },
-  { api: k8s.BatchV2alpha1Api, funcs: ["deleteNamespacedCronJob"] },
-  { api: k8s.StorageV1Api, funcs: ["deleteStorageClass", "deleteVolumeAttachment"] },
-];
+//TODO verify that the APIS implement the functions
+// deleteNamespacedPersistentVolume - deleteNamespacedPersistentVolumeClaim in CoreV1Api
+
+const deleteFunctionNamesToApiMap = new Map([
+  ["deleteNamespacedConfigMap", k8s.CoreV1Api],
+  ["deleteNamespacedEndpoints", k8s.CoreV1Api],
+  ["deleteNamespacedEvent", k8s.CoreV1Api],
+  ["deleteNamespacedLimitRange", k8s.CoreV1Api],
+  ["deleteNamespace", k8s.CoreV1Api],
+  ["deleteNode", k8s.CoreV1Api],
+  ["deleteNamespacedPersistentVolumeClaim", k8s.CoreV1Api],
+  ["deleteNamespacedPod", k8s.CoreV1Api],
+  ["deleteNamespacedPodTemplate", k8s.CoreV1Api],
+  ["deleteNamespacedReplicationController", k8s.CoreV1Api],
+  ["deleteNamespacedResourceQuota", k8s.CoreV1Api],
+  ["deleteNamespacedSecret", k8s.CoreV1Api],
+  ["deleteNamespacedServiceAccount", k8s.CoreV1Api],
+  ["deleteNamespacedService", k8s.CoreV1Api],
+  ["deleteNamespacedDaemonSet", k8s.AppsV1Api],
+  ["deleteNamespacedDeployment", k8s.AppsV1Api],
+  ["deleteNamespacedReplicaSet", k8s.AppsV1Api],
+  ["deleteNamespacedStatefulSet", k8s.AppsV1Api],
+  ["deleteNamespacedControllerRevision", k8s.AppsV1Api],
+  ["deleteNamespacedIngress", k8s.NetworkingV1Api],
+  ["deleteNamespacedNetworkPolicy", k8s.NetworkingV1Api],
+  ["deletePodSecurityPolicy", k8s.PolicyV1beta1Api],
+  ["deleteClusterRoleBinding", k8s.RbacAuthorizationV1Api],
+  ["deleteClusterRole", k8s.RbacAuthorizationV1Api],
+  ["deleteClusterRoleBinding", k8s.RbacAuthorizationV1Api],
+  ["deleteNamespacedJob", k8s.BatchV1Api],
+  ["deleteNamespacedCronJob", k8s.BatchV1Api],
+  ["deleteStorageClass", k8s.StorageV1Api],
+  ["deleteVolumeAttachment", k8s.StorageV1Api],
+]);
 
 function getDeleteFunc(kc, resourceType) {
-  const funcName = getDeleteFuncName(resourceType);
-  const apiFunc = apiToFuncs.find((mapObj) => mapObj.funcs.includes(funcName));
-
-  const api = apiFunc ? apiFunc.api : undefined;
+  const functionName = getDeleteFuncName(resourceType);
+  const api = deleteFunctionNamesToApiMap.get(functionName);
 
   if (!api) { throw `Couldn't find API client for resource type '${resourceType}'`; }
 
   const client = kc.makeApiClient(api);
-  const delFunc = client[funcName].bind(client); // bind delete function to it's client
+  const delFunc = client[functionName].bind(client); // bind delete function to it's client
   return delFunc;
 }
 
