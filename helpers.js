@@ -117,22 +117,6 @@ function getDeleteApi(resourceType, functionName) {
   return api;
 }
 
-function extractServiceAccountName(kubeToken) {
-  try {
-    const decoded = decodeBase64(kubeToken.split(".")[1]);
-    const parsed = JSON.parse(decoded);
-
-    const name = parsed["kubernetes.io/serviceaccount/service-account.name"];
-    if (!name) {
-      throw new Error("\"Service Account Name\" was not found in the Access Token.");
-    }
-
-    return name;
-  } catch (error) {
-    throw new Error(`Error occured while extracting the Service Account name from the Access Token. Make sure you pass the valid Access Token. ${error}`);
-  }
-}
-
 function createK8sClient(api, {
   kubeCertificate,
   kubeApiServer,
@@ -146,6 +130,23 @@ function createK8sClient(api, {
   const k8sClient = config.makeApiClient(api);
 
   return k8sClient;
+}
+
+async function applyBySpec(client, spec) {
+  try {
+    await client.read(spec);
+  } catch (err) {
+    return client.create(spec);
+  }
+  return client.patch(spec);
+}
+
+function parseError(err) {
+  if (err?.body?.code === HTTP_CODE_UNAUTHORIZED) {
+    return `${UNAUTHORIZED_ERROR_MESSAGE} ${err.body}`;
+  }
+
+  return err.body ? err.body : err;
 }
 
 function getConfig(params) {
@@ -187,25 +188,24 @@ function getConfig(params) {
   return kc;
 }
 
+function extractServiceAccountName(kubeToken) {
+  try {
+    const decoded = decodeBase64(kubeToken.split(".")[1]);
+    const parsed = JSON.parse(decoded);
+
+    const name = parsed["kubernetes.io/serviceaccount/service-account.name"];
+    if (!name) {
+      throw new Error("\"Service Account Name\" was not found in the Access Token.");
+    }
+
+    return name;
+  } catch (error) {
+    throw new Error(`Error occured while extracting the Service Account name from the Access Token. Make sure you pass the valid Access Token. ${error}`);
+  }
+}
+
 function decodeBase64(content) {
   return Buffer.from(content, "base64").toString("utf-8");
-}
-
-async function applyBySpec(client, spec) {
-  try {
-    await client.read(spec);
-  } catch (err) {
-    return client.create(spec);
-  }
-  return client.patch(spec);
-}
-
-function parseError(err) {
-  if (err?.body?.code === HTTP_CODE_UNAUTHORIZED) {
-    return `${UNAUTHORIZED_ERROR_MESSAGE} ${err.body}`;
-  }
-
-  return err.body ? err.body : err;
 }
 
 module.exports = {
