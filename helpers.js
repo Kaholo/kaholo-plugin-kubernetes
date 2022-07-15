@@ -8,110 +8,37 @@ const {
 const UNAUTHORIZED_ERROR_MESSAGE = "Please ensure the Service Account Token is vaulted in the correct format and that your service account has sufficient privileges to perform this operation. Consult the plugin documentation for more details.";
 const createMissingParamMessage = (paramName) => `${paramName} is a required parameter. Please configure it in either the plugin settings or the Action parameters.`;
 
-function decodeBase64(content) {
-  return Buffer.from(content, "base64").toString("utf-8");
-}
-
-function parseError(err) {
-  if (err.body) {
-    if (err.body.code === 401) {
-      return {
-        message: UNAUTHORIZED_ERROR_MESSAGE,
-        originalError: err.body,
-      };
-    }
-    return err.body;
-  }
-  return err;
-}
-
-function extractServiceAccountName(kubeToken) {
-  try {
-    const decoded = decodeBase64(kubeToken.split(".")[1]);
-    const parsed = JSON.parse(decoded);
-
-    const name = parsed["kubernetes.io/serviceaccount/service-account.name"];
-    if (!name) {
-      throw new Error("\"Service Account Name\" was not found in the Access Token.");
-    }
-
-    return name;
-  } catch (error) {
-    throw new Error(`Error occured while extracting the Service Account name from the Access Token. Make sure you pass the valid Access Token. ${error}`);
-  }
-}
-
-function validateConfig({ kubeCertificate, kubeApiServer, kubeToken }) {
-  if (!kubeCertificate.trim()) {
-    throw createMissingParamMessage("Certificate Authority");
-  }
-  if (!kubeApiServer.trim()) {
-    throw createMissingParamMessage("Endpoint URL");
-  }
-  if (!kubeToken.trim()) {
-    throw createMissingParamMessage("Service Account Token");
-  }
-}
-/**
- *
- * @param {*} params
- * @param {*} settings
- * @returns {k8s.KubeConfig}
- */
-function getConfig(params) {
-  const {
-    kubeCertificate,
-    kubeApiServer,
-    kubeToken,
-  } = params;
-
-  validateConfig({ kubeCertificate, kubeToken, kubeApiServer });
-  const saName = extractServiceAccountName(kubeToken) || "kaholo-sa";
-
-  // define options
-  const user = {
-    name: saName,
-    user: { token: kubeToken },
-  };
-  const cluster = {
-    cluster: {
-      "certificate-authority-data": kubeCertificate,
-      server: kubeApiServer,
-    },
-    name: `${saName}-cluster`,
-  };
-  const context = {
-    context: {
-      cluster: `${saName}-cluster`,
-      user: saName,
-    },
-    name: `${saName}-context`,
-  };
-    // load kubeconfig from options
-  const kc = new k8s.KubeConfig();
-  kc.loadFromOptions({
-    clusters: newClusters([cluster]),
-    contexts: newContexts([context]),
-    users: newUsers([user]),
-    currentContext: context.name,
-  });
-  return kc;
-}
-
-function createK8sClient(api, {
-  kubeCertificate,
-  kubeApiServer,
-  kubeToken,
-}) {
-  const config = getConfig({
-    kubeCertificate,
-    kubeApiServer,
-    kubeToken,
-  });
-  const k8sClient = config.makeApiClient(api);
-
-  return k8sClient;
-}
+const deleteFunctionNamesToApiMap = new Map([
+  ["deleteNamespacedConfigMap", k8s.CoreV1Api],
+  ["deleteNamespacedEndpoints", k8s.CoreV1Api],
+  ["deleteNamespacedEvent", k8s.CoreV1Api],
+  ["deleteNamespacedLimitRange", k8s.CoreV1Api],
+  ["deleteNamespace", k8s.CoreV1Api],
+  ["deleteNode", k8s.CoreV1Api],
+  ["deleteNamespacedPersistentVolumeClaim", k8s.CoreV1Api],
+  ["deleteNamespacedPod", k8s.CoreV1Api],
+  ["deleteNamespacedPodTemplate", k8s.CoreV1Api],
+  ["deleteNamespacedReplicationController", k8s.CoreV1Api],
+  ["deleteNamespacedResourceQuota", k8s.CoreV1Api],
+  ["deleteNamespacedSecret", k8s.CoreV1Api],
+  ["deleteNamespacedServiceAccount", k8s.CoreV1Api],
+  ["deleteNamespacedService", k8s.CoreV1Api],
+  ["deleteNamespacedDaemonSet", k8s.AppsV1Api],
+  ["deleteNamespacedDeployment", k8s.AppsV1Api],
+  ["deleteNamespacedReplicaSet", k8s.AppsV1Api],
+  ["deleteNamespacedStatefulSet", k8s.AppsV1Api],
+  ["deleteNamespacedControllerRevision", k8s.AppsV1Api],
+  ["deleteNamespacedIngress", k8s.NetworkingV1Api],
+  ["deleteNamespacedNetworkPolicy", k8s.NetworkingV1Api],
+  ["deletePodSecurityPolicy", k8s.PolicyV1beta1Api],
+  ["deleteClusterRoleBinding", k8s.RbacAuthorizationV1Api],
+  ["deleteClusterRole", k8s.RbacAuthorizationV1Api],
+  ["deleteClusterRoleBinding", k8s.RbacAuthorizationV1Api],
+  ["deleteNamespacedJob", k8s.BatchV1Api],
+  ["deleteNamespacedCronJob", k8s.BatchV1Api],
+  ["deleteStorageClass", k8s.StorageV1Api],
+  ["deleteVolumeAttachment", k8s.StorageV1Api],
+]);
 
 function mapResourceTypeToDeleteFunctionName(resourceType) {
   switch (resourceType) {
@@ -180,39 +107,6 @@ function mapResourceTypeToDeleteFunctionName(resourceType) {
   }
 }
 
-// deleteNamespacedPersistentVolume - deleteNamespacedPersistentVolumeClaim in CoreV1Api
-const deleteFunctionNamesToApiMap = new Map([
-  ["deleteNamespacedConfigMap", k8s.CoreV1Api],
-  ["deleteNamespacedEndpoints", k8s.CoreV1Api],
-  ["deleteNamespacedEvent", k8s.CoreV1Api],
-  ["deleteNamespacedLimitRange", k8s.CoreV1Api],
-  ["deleteNamespace", k8s.CoreV1Api],
-  ["deleteNode", k8s.CoreV1Api],
-  ["deleteNamespacedPersistentVolumeClaim", k8s.CoreV1Api],
-  ["deleteNamespacedPod", k8s.CoreV1Api],
-  ["deleteNamespacedPodTemplate", k8s.CoreV1Api],
-  ["deleteNamespacedReplicationController", k8s.CoreV1Api],
-  ["deleteNamespacedResourceQuota", k8s.CoreV1Api],
-  ["deleteNamespacedSecret", k8s.CoreV1Api],
-  ["deleteNamespacedServiceAccount", k8s.CoreV1Api],
-  ["deleteNamespacedService", k8s.CoreV1Api],
-  ["deleteNamespacedDaemonSet", k8s.AppsV1Api],
-  ["deleteNamespacedDeployment", k8s.AppsV1Api],
-  ["deleteNamespacedReplicaSet", k8s.AppsV1Api],
-  ["deleteNamespacedStatefulSet", k8s.AppsV1Api],
-  ["deleteNamespacedControllerRevision", k8s.AppsV1Api],
-  ["deleteNamespacedIngress", k8s.NetworkingV1Api],
-  ["deleteNamespacedNetworkPolicy", k8s.NetworkingV1Api],
-  ["deletePodSecurityPolicy", k8s.PolicyV1beta1Api],
-  ["deleteClusterRoleBinding", k8s.RbacAuthorizationV1Api],
-  ["deleteClusterRole", k8s.RbacAuthorizationV1Api],
-  ["deleteClusterRoleBinding", k8s.RbacAuthorizationV1Api],
-  ["deleteNamespacedJob", k8s.BatchV1Api],
-  ["deleteNamespacedCronJob", k8s.BatchV1Api],
-  ["deleteStorageClass", k8s.StorageV1Api],
-  ["deleteVolumeAttachment", k8s.StorageV1Api],
-]);
-
 function getDeleteApi(resourceType, functionName) {
   const api = deleteFunctionNamesToApiMap.get(functionName);
 
@@ -221,6 +115,93 @@ function getDeleteApi(resourceType, functionName) {
   }
 
   return api;
+}
+
+function extractServiceAccountName(kubeToken) {
+  try {
+    const decoded = decodeBase64(kubeToken.split(".")[1]);
+    const parsed = JSON.parse(decoded);
+
+    const name = parsed["kubernetes.io/serviceaccount/service-account.name"];
+    if (!name) {
+      throw new Error("\"Service Account Name\" was not found in the Access Token.");
+    }
+
+    return name;
+  } catch (error) {
+    throw new Error(`Error occured while extracting the Service Account name from the Access Token. Make sure you pass the valid Access Token. ${error}`);
+  }
+}
+
+function validateConfig({ kubeCertificate, kubeApiServer, kubeToken }) {
+  if (!kubeCertificate.trim()) {
+    throw createMissingParamMessage("Certificate Authority");
+  }
+  if (!kubeApiServer.trim()) {
+    throw createMissingParamMessage("Endpoint URL");
+  }
+  if (!kubeToken.trim()) {
+    throw createMissingParamMessage("Service Account Token");
+  }
+}
+
+function createK8sClient(api, {
+  kubeCertificate,
+  kubeApiServer,
+  kubeToken,
+}) {
+  const config = getConfig({
+    kubeCertificate,
+    kubeApiServer,
+    kubeToken,
+  });
+  const k8sClient = config.makeApiClient(api);
+
+  return k8sClient;
+}
+
+function getConfig(params) {
+  const {
+    kubeCertificate,
+    kubeApiServer,
+    kubeToken,
+  } = params;
+
+  validateConfig({ kubeCertificate, kubeToken, kubeApiServer });
+  const saName = extractServiceAccountName(kubeToken) || "kaholo-sa";
+
+  // define options
+  const user = {
+    name: saName,
+    user: { token: kubeToken },
+  };
+  const cluster = {
+    cluster: {
+      "certificate-authority-data": kubeCertificate,
+      server: kubeApiServer,
+    },
+    name: `${saName}-cluster`,
+  };
+  const context = {
+    context: {
+      cluster: `${saName}-cluster`,
+      user: saName,
+    },
+    name: `${saName}-context`,
+  };
+  // load kubeconfig from options
+  const kc = new k8s.KubeConfig();
+  kc.loadFromOptions({
+    clusters: newClusters([cluster]),
+    contexts: newContexts([context]),
+    users: newUsers([user]),
+    currentContext: context.name,
+  });
+  return kc;
+}
+
+function decodeBase64(content) {
+  return Buffer.from(content, "base64").toString("utf-8");
 }
 
 async function applyBySpec(client, spec) {
@@ -232,10 +213,23 @@ async function applyBySpec(client, spec) {
   return client.patch(spec);
 }
 
+function parseError(err) {
+  if (err.body) {
+    if (err.body.code === 401) {
+      return {
+        message: UNAUTHORIZED_ERROR_MESSAGE,
+        originalError: err.body,
+      };
+    }
+    return err.body;
+  }
+  return err;
+}
+
 module.exports = {
-  createK8sClient,
   mapResourceTypeToDeleteFunctionName,
   getDeleteApi,
-  parseError,
+  createK8sClient,
   applyBySpec,
+  parseError,
 };
