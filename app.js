@@ -1,9 +1,9 @@
 const { bootstrap } = require("@kaholo/plugin-library");
 const { CoreV1Api, KubernetesObjectApi } = require("@kubernetes/client-node");
 
-const k8sLib = require("./k8s-library");
-const { runKubectlCommand } = require("./kubectl");
-const { createK8sClient } = require("./k8s-client");
+const k8sFunctions = require("./k8s-functions");
+const k8sClient = require("./k8s-client");
+const kubectl = require("./kubectl");
 const { mapResourceTypeToDeleteFunctionName, getDeleteApi } = require("./k8s-delete-utils");
 
 async function apply(params) {
@@ -15,13 +15,13 @@ async function apply(params) {
     namespace,
   } = params;
 
-  const k8sClient = createK8sClient(KubernetesObjectApi, {
+  const client = k8sClient.create(KubernetesObjectApi, {
     kubeCertificate,
     kubeApiServer,
     kubeToken,
   });
 
-  return k8sLib.apply(k8sClient, { yamlPath, namespace });
+  return k8sFunctions.apply(client, { yamlPath, namespace });
 }
 
 async function deleteObjects(params) {
@@ -39,13 +39,13 @@ async function deleteObjects(params) {
     const functionName = mapResourceTypeToDeleteFunctionName(type);
 
     const api = getDeleteApi(type, name);
-    const k8sClient = createK8sClient(api, {
+    const client = k8sClient.create(api, {
       kubeCertificate,
       kubeApiServer,
       kubeToken,
     });
 
-    return k8sLib.deleteObject(k8sClient, {
+    return k8sFunctions.deleteObject(client, {
       functionName,
       namespace,
     });
@@ -78,13 +78,13 @@ async function getAllServices(params) {
     namespace,
   } = params;
 
-  const k8sClient = createK8sClient(CoreV1Api, {
+  const client = k8sClient.create(CoreV1Api, {
     kubeCertificate,
     kubeApiServer,
     kubeToken,
   });
 
-  return k8sLib.getAllServices(k8sClient, { labelsFilter, namespace });
+  return k8sFunctions.getAllServices(client, { labelsFilter, namespace });
 }
 
 async function getService(params) {
@@ -96,13 +96,13 @@ async function getService(params) {
     namespace,
   } = params;
 
-  const k8sClient = createK8sClient(CoreV1Api, {
+  const client = k8sClient.create(CoreV1Api, {
     kubeCertificate,
     kubeApiServer,
     kubeToken,
   });
 
-  return k8sLib.getService(k8sClient, { name, namespace });
+  return k8sFunctions.getService(client, { name, namespace });
 }
 
 module.exports = bootstrap({
@@ -110,5 +110,5 @@ module.exports = bootstrap({
   deleteObjects,
   getService,
   getAllServices,
-  runKubectlCommand,
+  runKubectlCommand: kubectl.runCommand,
 });

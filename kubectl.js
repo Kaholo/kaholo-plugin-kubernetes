@@ -3,7 +3,7 @@ const exec = util.promisify(require("child_process").exec);
 
 const KUBECTL_IMAGE_NAME = "bitnami/kubectl";
 
-async function runKubectlCommand(params) {
+async function runCommand(params) {
   //TODO Check if KUBECONFIG is set and reuse it if it is
   const command = "docker run --rm ";
 
@@ -11,5 +11,5 @@ async function runKubectlCommand(params) {
 }
 
 module.exports = {
-  runKubectlCommand,
+  runCommand,
 };

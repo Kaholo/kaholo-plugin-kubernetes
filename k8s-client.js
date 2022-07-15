@@ -7,7 +7,7 @@ const {
 
 const { decodeBase64 } = require("./helpers");
 
-function createK8sClient(api, {
+function create(api, {
   kubeCertificate,
   kubeApiServer,
   kubeToken,
@@ -78,5 +78,5 @@ function extractServiceAccountName(kubeToken) {
 }
 
 module.exports = {
-  createK8sClient,
+  create,
 };
