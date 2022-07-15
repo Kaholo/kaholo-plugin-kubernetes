@@ -2,11 +2,8 @@ const yaml = require("js-yaml");
 const fs = require("fs");
 
 const {
-  parseErr,
+  parseError,
   applyBySpec,
-  getConfig,
-  getDeleteFunc,
-  runDeleteFunc,
 } = require("./helpers");
 
 async function apply(client, { yamlPath, namespace }) {
@@ -28,7 +25,7 @@ async function apply(client, { yamlPath, namespace }) {
       const response = await applyBySpec(client, spec);
       created.push(response.body);
     } catch (err) {
-      created.push(parseErr(err));
+      created.push(parseError(err));
       throw created;
     }
   }
@@ -41,7 +38,7 @@ async function getService(client, { name, namespace }) {
 
     return res.body;
   } catch (err) {
-    throw parseErr(err);
+    throw parseError(err);
   }
 }
 
@@ -83,57 +80,60 @@ async function getAllServices(client, { labelsFilter, namespace }) {
     const res = await client.listNamespacedService(namespace || "default");
     return res.body.items;
   } catch (err) {
-    throw parseErr(err);
+    throw parseError(err);
   }
 }
 
-async function deleteObjects(configParams, {
-  objectsTypes,
-  objectsNames,
+async function deleteObject(client, {
+  functionName,
+  objectType,
+  objectName,
   namespace,
 }) {
-  const kubeConfig = getConfig(configParams);
+  validateDeleteFunction(client[functionName], namespace, objectType);
 
-  const deleteFuncs = objectsTypes.map((resourceType) => {
-    const deleteFunc = getDeleteFunc(kubeConfig, resourceType);
+  let result;
+  try {
+    result = namespace
+      ? await client[functionName](objectName, namespace)
+      : await client[functionName](objectName);
+  } catch (error) {
+    const deletionInfo = {
+      objectType,
+      objectName,
+      err: JSON.stringify(parseError(error)),
+    };
 
-    const namespaced = deleteFunc.name.includes("Namespaced");
-    if (namespaced && !namespace) {
-      throw `Must specify namespace to delete object of type '${resourceType}`;
+    if (namespace) {
+      deletionInfo.namespace = namespace;
     }
 
-    return { deleteFunc, resourceType, namespaced };
-  });
-
-  const [promises, deleted, failed] = [[], [], []]; // initiate with empty lists
-
-  deleteFuncs.forEach(({ deleteFunc, resourceType, namespaced }) => {
-    objectsNames.forEach((name) => {
-      // to run all deletes at once
-      promises.push(runDeleteFunc(deleteFunc, resourceType, name, namespaced ? namespace : null));
-    });
-  });
-
-  const results = await Promise.all(promises); // remove all empty results
-  results.forEach((deleteObj) => {
-    if (deleteObj.err) {
-      failed.push(deleteObj);
-    } else {
-      deleted.push(deleteObj);
-    }
-  });
-
-  const returnVal = { deleted, failed };
-  if (failed.length > 0 || deleted.length === 0) {
-    throw returnVal;
+    return deletionInfo;
   }
 
-  return returnVal;
+  const deletionInfo = {
+    objectType,
+    objectName,
+    result: JSON.stringify(result.body),
+  };
+
+  if (namespace) {
+    deletionInfo.namespace = namespace;
+  }
+
+  return deletionInfo;
+}
+
+function validateDeleteFunction(deleteFunction, namespace, objectType) {
+  const namespaced = deleteFunction.name.includes("Namespaced");
+  if (namespaced && !namespace) {
+    throw new Error(`Must specify namespace to delete object of type '${objectType}`);
+  }
 }
 
 module.exports = {
   apply,
   getService,
   getAllServices,
-  deleteObjects,
+  deleteObject,
 };

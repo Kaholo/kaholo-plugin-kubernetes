@@ -1,16 +1,18 @@
 const k8s = require("@kubernetes/client-node");
-// Constructors
-const { newClusters, newContexts, newUsers } = require("@kubernetes/client-node/dist/config_types");
+const {
+  newClusters,
+  newContexts,
+  newUsers,
+} = require("@kubernetes/client-node/dist/config_types");
 
 const UNAUTHORIZED_ERROR_MESSAGE = "Please ensure the Service Account Token is vaulted in the correct format and that your service account has sufficient privileges to perform this operation. Consult the plugin documentation for more details.";
-const EXTRACTION_FAILED_MESSAGE = "Error occured while extracting the Service Account name from the Access Token. Make sure you pass the valid Access Token.";
 const createMissingParamMessage = (paramName) => `${paramName} is a required parameter. Please configure it in either the plugin settings or the Action parameters.`;
 
 function decodeBase64(content) {
   return Buffer.from(content, "base64").toString("utf-8");
 }
 
-function parseErr(err) {
+function parseError(err) {
   if (err.body) {
     if (err.body.code === 401) {
       return {
@@ -23,35 +25,22 @@ function parseErr(err) {
   return err;
 }
 
-/**
- * Extracts the service account name from the access kubeToken
- * @param {string} kubeToken
- * @returns {string}
- */
 function extractServiceAccountName(kubeToken) {
   try {
     const decoded = decodeBase64(kubeToken.split(".")[1]);
     const parsed = JSON.parse(decoded);
+
     const name = parsed["kubernetes.io/serviceaccount/service-account.name"];
     if (!name) {
       throw new Error("\"Service Account Name\" was not found in the Access Token.");
     }
+
     return name;
   } catch (error) {
-    throw {
-      message: EXTRACTION_FAILED_MESSAGE,
-      originalError: error,
-    };
+    throw new Error(`Error occured while extracting the Service Account name from the Access Token. Make sure you pass the valid Access Token. ${error}`);
   }
 }
-/**
- * Checks the configuration
- * @param {{
- *  kubeCertificate: string;
- *  kubeApiServer: string;
- *  kubeToken: string;
- * }} config
- */
+
 function validateConfig({ kubeCertificate, kubeApiServer, kubeToken }) {
   if (!kubeCertificate.trim()) {
     throw createMissingParamMessage("Certificate Authority");
@@ -124,7 +113,7 @@ function createK8sClient(api, {
   return k8sClient;
 }
 
-function getDeleteFuncName(resourceType) {
+function mapResourceTypeToDeleteFunctionName(resourceType) {
   switch (resourceType) {
     case "configmaps": case "configmap": case "cm":
       return "deleteNamespacedConfigMap";
@@ -187,13 +176,11 @@ function getDeleteFuncName(resourceType) {
     case "volumeattachments": case "volumeattachment":
       return "deleteVolumeAttachment";
     default:
-      throw "couldn't find resource type";
+      throw new Error("Unrecognized resource type");
   }
 }
 
-//TODO verify that the APIS implement the functions
 // deleteNamespacedPersistentVolume - deleteNamespacedPersistentVolumeClaim in CoreV1Api
-
 const deleteFunctionNamesToApiMap = new Map([
   ["deleteNamespacedConfigMap", k8s.CoreV1Api],
   ["deleteNamespacedEndpoints", k8s.CoreV1Api],
@@ -226,35 +213,14 @@ const deleteFunctionNamesToApiMap = new Map([
   ["deleteVolumeAttachment", k8s.StorageV1Api],
 ]);
 
-function getDeleteFunc(kc, resourceType) {
-  const functionName = getDeleteFuncName(resourceType);
+function getDeleteApi(resourceType, functionName) {
   const api = deleteFunctionNamesToApiMap.get(functionName);
 
-  if (!api) { throw `Couldn't find API client for resource type '${resourceType}'`; }
-
-  const client = kc.makeApiClient(api);
-  const delFunc = client[functionName].bind(client); // bind delete function to it's client
-  return delFunc;
-}
-
-async function runDeleteFunc(deleteFunc, resourceType, name, namespace) {
-  const deleteObj = {
-    type: resourceType,
-    name,
-  };
-  try {
-    let res;
-    if (namespace) {
-      deleteObj.namespace = namespace;
-      res = await deleteFunc(name, namespace);
-    } else {
-      res = await deleteFunc(name);
-    }
-    deleteObj.result = JSON.stringify(res.body);
-  } catch (err) {
-    deleteObj.err = JSON.stringify(parseErr(err));
+  if (!api) {
+    throw new Error(`Couldn't find API client for resource type '${resourceType}'`);
   }
-  return deleteObj;
+
+  return api;
 }
 
 async function applyBySpec(client, spec) {
@@ -268,9 +234,8 @@ async function applyBySpec(client, spec) {
 
 module.exports = {
   createK8sClient,
-  getConfig,
-  runDeleteFunc,
-  getDeleteFunc,
-  parseErr,
+  mapResourceTypeToDeleteFunctionName,
+  getDeleteApi,
+  parseError,
   applyBySpec,
 };

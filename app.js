@@ -3,7 +3,7 @@ const { CoreV1Api, KubernetesObjectApi } = require("@kubernetes/client-node");
 
 const k8sLib = require("./k8s-library");
 const { runKubectlCommand } = require("./kubectl");
-const { createK8sClient } = require("./helpers");
+const { createK8sClient, mapResourceTypeToDeleteFunctionName, getDeleteApi } = require("./helpers");
 
 async function apply(params) {
   const {
@@ -23,18 +23,49 @@ async function apply(params) {
   return k8sLib.apply(k8sClient, { yamlPath, namespace });
 }
 
-async function deleteObject(params) {
+async function deleteObjects(params) {
   const {
-    types,
-    names,
+    kubeCertificate,
+    kubeApiServer,
+    kubeToken,
+    objectsMap,
     namespace,
   } = params;
 
-  return k8sLib.deleteObjects(params, {
-    objectsTypes: types,
-    objectsNames: names,
-    namespace,
+  const deletionPromises = objectsMap.map((mapping) => {
+    const [type, name] = mapping.split(" ");
+
+    const functionName = mapResourceTypeToDeleteFunctionName(type);
+
+    const api = getDeleteApi(type, name);
+    const k8sClient = createK8sClient(api, {
+      kubeCertificate,
+      kubeApiServer,
+      kubeToken,
+    });
+
+    return k8sLib.deleteObject(k8sClient, {
+      functionName,
+      namespace,
+    });
   });
+
+  const [deleted, failed] = [[], []];
+  const results = await Promise.all(deletionPromises);
+  results.forEach((deleteObj) => {
+    if (deleteObj.err) {
+      failed.push(deleteObj);
+    } else {
+      deleted.push(deleteObj);
+    }
+  });
+
+  const returnVal = { deleted, failed };
+  if (failed.length > 0 || deleted.length === 0) {
+    throw returnVal;
+  }
+
+  return returnVal;
 }
 
 async function getAllServices(params) {
@@ -75,7 +106,7 @@ async function getService(params) {
 
 module.exports = bootstrap({
   apply,
-  deleteObject,
+  deleteObjects,
   getService,
   getAllServices,
   runKubectlCommand,
