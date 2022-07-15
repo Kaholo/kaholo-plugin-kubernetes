@@ -72,24 +72,6 @@ async function deleteObjects(params) {
   return returnVal;
 }
 
-async function getAllServices(params) {
-  const {
-    kubeCertificate,
-    kubeApiServer,
-    kubeToken,
-    labelsFilter,
-    namespace,
-  } = params;
-
-  const client = k8sClient.create(CoreV1Api, {
-    kubeCertificate,
-    kubeApiServer,
-    kubeToken,
-  });
-
-  return k8sFunctions.getAllServices(client, { labelsFilter, namespace });
-}
-
 async function getService(params) {
   const {
     kubeCertificate,
@@ -106,6 +88,24 @@ async function getService(params) {
   });
 
   return k8sFunctions.getService(client, { name, namespace });
+}
+
+async function getAllServices(params) {
+  const {
+    kubeCertificate,
+    kubeApiServer,
+    kubeToken,
+    labelsFilter,
+    namespace,
+  } = params;
+
+  const client = k8sClient.create(CoreV1Api, {
+    kubeCertificate,
+    kubeApiServer,
+    kubeToken,
+  });
+
+  return k8sFunctions.getAllServices(client, { labelsFilter, namespace });
 }
 
 module.exports = bootstrap({

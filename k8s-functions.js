@@ -32,6 +32,44 @@ async function apply(client, { yamlPath, namespace }) {
   return created;
 }
 
+async function deleteObject(client, {
+  functionName,
+  objectType,
+  objectName,
+  namespace,
+}) {
+  let result;
+  try {
+    result = namespace
+      ? await client[functionName](objectName, namespace)
+      : await client[functionName](objectName);
+  } catch (error) {
+    const deletionInfo = {
+      objectType,
+      objectName,
+      err: JSON.stringify(parseError(error)),
+    };
+
+    if (namespace) {
+      deletionInfo.namespace = namespace;
+    }
+
+    return deletionInfo;
+  }
+
+  const deletionInfo = {
+    objectType,
+    objectName,
+    result: JSON.stringify(result.body),
+  };
+
+  if (namespace) {
+    deletionInfo.namespace = namespace;
+  }
+
+  return deletionInfo;
+}
+
 async function getService(client, { name, namespace }) {
   try {
     const res = await client.readNamespacedService(name, namespace);
@@ -82,44 +120,6 @@ async function getAllServices(client, { labelsFilter, namespace }) {
   } catch (err) {
     throw parseError(err);
   }
-}
-
-async function deleteObject(client, {
-  functionName,
-  objectType,
-  objectName,
-  namespace,
-}) {
-  let result;
-  try {
-    result = namespace
-      ? await client[functionName](objectName, namespace)
-      : await client[functionName](objectName);
-  } catch (error) {
-    const deletionInfo = {
-      objectType,
-      objectName,
-      err: JSON.stringify(parseError(error)),
-    };
-
-    if (namespace) {
-      deletionInfo.namespace = namespace;
-    }
-
-    return deletionInfo;
-  }
-
-  const deletionInfo = {
-    objectType,
-    objectName,
-    result: JSON.stringify(result.body),
-  };
-
-  if (namespace) {
-    deletionInfo.namespace = namespace;
-  }
-
-  return deletionInfo;
 }
 
 module.exports = {
