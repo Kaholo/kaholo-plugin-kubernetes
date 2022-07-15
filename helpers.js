@@ -133,20 +133,6 @@ function extractServiceAccountName(kubeToken) {
   }
 }
 
-function validateConfig({ kubeCertificate, kubeApiServer, kubeToken }) {
-  const errorMessage = " is a required parameter. Please configure it in either the plugin settings or the Action parameters.";
-
-  if (!kubeCertificate.trim()) {
-    throw new Error(`Certificate Authority ${errorMessage}`);
-  }
-  if (!kubeApiServer.trim()) {
-    throw new Error(`Endpoint URL ${errorMessage}`);
-  }
-  if (!kubeToken.trim()) {
-    throw new Error(`Service Account Token ${errorMessage}`);
-  }
-}
-
 function createK8sClient(api, {
   kubeCertificate,
   kubeApiServer,
@@ -169,7 +155,6 @@ function getConfig(params) {
     kubeToken,
   } = params;
 
-  validateConfig({ kubeCertificate, kubeToken, kubeApiServer });
   const saName = extractServiceAccountName(kubeToken) || "kaholo-sa";
 
   // define options
