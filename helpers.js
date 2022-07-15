@@ -1,6 +1,13 @@
 const HTTP_CODE_UNAUTHORIZED = 401;
 const UNAUTHORIZED_ERROR_MESSAGE = "Please ensure the Service Account Token is vaulted in the correct format and that your service account has sufficient privileges to perform this operation. Consult the plugin documentation for more details.";
 
+function validateNamespace(namespace, deleteFunction, objectType) {
+  const namespaced = deleteFunction.name.includes("Namespaced");
+  if (namespaced && !namespace) {
+    throw new Error(`Must specify namespace to delete object of type '${objectType}`);
+  }
+}
+
 async function applyBySpec(client, spec) {
   try {
     await client.read(spec);
@@ -23,6 +30,7 @@ function decodeBase64(content) {
 }
 
 module.exports = {
+  validateNamespace,
   applyBySpec,
   parseError,
   decodeBase64,

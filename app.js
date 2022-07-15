@@ -5,6 +5,7 @@ const k8sFunctions = require("./k8s-functions");
 const k8sClient = require("./k8s-client");
 const kubectl = require("./kubectl");
 const { mapResourceTypeToDeleteFunctionName, getDeleteApi } = require("./k8s-delete-utils");
+const { validateNamespace } = require("./helpers");
 
 async function apply(params) {
   const {
@@ -44,6 +45,8 @@ async function deleteObjects(params) {
       kubeApiServer,
       kubeToken,
     });
+
+    validateNamespace(namespace, client[functionName], type);
 
     return k8sFunctions.deleteObject(client, {
       functionName,

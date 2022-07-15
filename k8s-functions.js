@@ -90,8 +90,6 @@ async function deleteObject(client, {
   objectName,
   namespace,
 }) {
-  validateDeleteFunction(client[functionName], namespace, objectType);
-
   let result;
   try {
     result = namespace
@@ -122,13 +120,6 @@ async function deleteObject(client, {
   }
 
   return deletionInfo;
-}
-
-function validateDeleteFunction(deleteFunction, namespace, objectType) {
-  const namespaced = deleteFunction.name.includes("Namespaced");
-  if (namespaced && !namespace) {
-    throw new Error(`Must specify namespace to delete object of type '${objectType}`);
-  }
 }
 
 module.exports = {

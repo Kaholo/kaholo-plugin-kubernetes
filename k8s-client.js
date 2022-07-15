@@ -29,36 +29,38 @@ function getConfig(params) {
     kubeToken,
   } = params;
 
-  const saName = extractServiceAccountName(kubeToken) || "kaholo-sa";
+  const serviceAccountName = extractServiceAccountName(kubeToken);
 
-  // define options
-  const user = {
-    name: saName,
-    user: { token: kubeToken },
-  };
   const cluster = {
     cluster: {
       "certificate-authority-data": kubeCertificate,
       server: kubeApiServer,
     },
-    name: `${saName}-cluster`,
+    name: `${serviceAccountName}-cluster`,
   };
+
   const context = {
     context: {
-      cluster: `${saName}-cluster`,
-      user: saName,
+      cluster: `${serviceAccountName}-cluster`,
+      user: serviceAccountName,
     },
-    name: `${saName}-context`,
+    name: `${serviceAccountName}-context`,
   };
-  // load kubeconfig from options
-  const kc = new k8s.KubeConfig();
-  kc.loadFromOptions({
+
+  const user = {
+    name: serviceAccountName,
+    user: { token: kubeToken },
+  };
+
+  const kubeConfig = new k8s.KubeConfig();
+  kubeConfig.loadFromOptions({
     clusters: newClusters([cluster]),
     contexts: newContexts([context]),
     users: newUsers([user]),
     currentContext: context.name,
   });
-  return kc;
+
+  return kubeConfig;
 }
 
 function extractServiceAccountName(kubeToken) {
