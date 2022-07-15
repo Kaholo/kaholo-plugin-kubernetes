@@ -3,7 +3,7 @@ const { CoreV1Api, KubernetesObjectApi } = require("@kubernetes/client-node");
 
 const k8sLib = require("./k8s-library");
 const { runKubectlCommand } = require("./kubectl");
-const { createK8sClient } = require("./helpers");
+const { createK8sClient } = require("./k8s-client");
 const { mapResourceTypeToDeleteFunctionName, getDeleteApi } = require("./k8s-delete-utils");
 
 async function apply(params) {
