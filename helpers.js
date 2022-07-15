@@ -5,8 +5,8 @@ const {
   newUsers,
 } = require("@kubernetes/client-node/dist/config_types");
 
+const HTTP_CODE_UNAUTHORIZED = 401;
 const UNAUTHORIZED_ERROR_MESSAGE = "Please ensure the Service Account Token is vaulted in the correct format and that your service account has sufficient privileges to perform this operation. Consult the plugin documentation for more details.";
-const createMissingParamMessage = (paramName) => `${paramName} is a required parameter. Please configure it in either the plugin settings or the Action parameters.`;
 
 const deleteFunctionNamesToApiMap = new Map([
   ["deleteNamespacedConfigMap", k8s.CoreV1Api],
@@ -134,14 +134,16 @@ function extractServiceAccountName(kubeToken) {
 }
 
 function validateConfig({ kubeCertificate, kubeApiServer, kubeToken }) {
+  const errorMessage = " is a required parameter. Please configure it in either the plugin settings or the Action parameters.";
+
   if (!kubeCertificate.trim()) {
-    throw createMissingParamMessage("Certificate Authority");
+    throw new Error(`Certificate Authority ${errorMessage}`);
   }
   if (!kubeApiServer.trim()) {
-    throw createMissingParamMessage("Endpoint URL");
+    throw new Error(`Endpoint URL ${errorMessage}`);
   }
   if (!kubeToken.trim()) {
-    throw createMissingParamMessage("Service Account Token");
+    throw new Error(`Service Account Token ${errorMessage}`);
   }
 }
 
@@ -214,16 +216,11 @@ async function applyBySpec(client, spec) {
 }
 
 function parseError(err) {
-  if (err.body) {
-    if (err.body.code === 401) {
-      return {
-        message: UNAUTHORIZED_ERROR_MESSAGE,
-        originalError: err.body,
-      };
-    }
-    return err.body;
+  if (err?.body?.code === HTTP_CODE_UNAUTHORIZED) {
+    return `${UNAUTHORIZED_ERROR_MESSAGE} ${err.body}`;
   }
-  return err;
+
+  return err.body ? err.body : err;
 }
 
 module.exports = {
