@@ -17,6 +17,16 @@ async function applyBySpec(client, spec) {
   return client.patch(spec);
 }
 
+function extractResponseData(response) {
+  const data = response?.body?.items;
+
+  if (!data) {
+    throw new Error("Response is missing data.");
+  }
+
+  return data;
+}
+
 function parseError(err) {
   if (err?.body?.code === HTTP_CODE_UNAUTHORIZED) {
     return `${UNAUTHORIZED_ERROR_MESSAGE} ${err.body}`;
@@ -32,6 +42,7 @@ function decodeBase64(content) {
 module.exports = {
   validateNamespace,
   applyBySpec,
+  extractResponseData,
   parseError,
   decodeBase64,
 };

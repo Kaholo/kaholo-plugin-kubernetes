@@ -2,15 +2,12 @@ const yaml = require("js-yaml");
 const fs = require("fs");
 
 const {
-  parseError,
   applyBySpec,
+  extractResponseData,
+  parseError,
 } = require("./helpers");
 
 async function apply(client, { yamlPath, namespace }) {
-  /**
-   * @type {k8s-library.js.KubernetesObject[]}
-   * Get all deployments/specs from yaml file and filter the valid ones
-   */
   const specs = yaml.loadAll(fs.readFileSync(yamlPath)).filter((s) => s && s.kind && s.metadata);
 
   const created = [];
@@ -18,9 +15,11 @@ async function apply(client, { yamlPath, namespace }) {
     if (namespace && !spec.metadata.namespace && spec.kind !== "Namespace") {
       spec.metadata.namespace = namespace;
     }
+
     spec.metadata.annotations = spec.metadata.annotations || {};
     delete spec.metadata.annotations["kubectl.kubernetes.io/last-applied-configuration"];
     spec.metadata.annotations["kubectl.kubernetes.io/last-applied-configuration"] = JSON.stringify(spec);
+
     try {
       const response = await applyBySpec(client, spec);
       created.push(response.body);
@@ -29,6 +28,7 @@ async function apply(client, { yamlPath, namespace }) {
       throw created;
     }
   }
+
   return created;
 }
 
@@ -80,43 +80,42 @@ async function getService(client, { name, namespace }) {
   }
 }
 
-async function getAllServices(client, { labelsFilter, namespace }) {
-  let filtersArray = [];
-  if (labelsFilter) {
-    filtersArray = Array.isArray(labelsFilter) ? labelsFilter : labelsFilter.split("\n");
-  }
-
-  const filters = filtersArray.map((f) => {
-    const [key, value] = f.split("=");
+async function getAllServices(client, { labelsFilter, namespace: userDefinedNamespace }) {
+  const filters = labelsFilter.map((filter) => {
+    const [key, value] = filter.split("=");
     return { key, value };
   });
+
   try {
-    if (namespace === "*") {
-      const namespaces = await client.listNamespace();
-      const listServicesPromises = namespaces.body.items.map(
-        (namespaceObj) => client.listNamespacedService(namespaceObj.metadata.name),
-      );
-      const [...serviceResults] = await Promise.all(listServicesPromises);
-      const allServices = [];
-      serviceResults.forEach((serviceResult) => {
-        const filteredServices = serviceResult.body.items.filter((service) => {
-          for (let i = 0, length = filters.length; i < length; i += 1) {
-            const isFilterValid = service.metadata.labels && service.metadata.labels[filters[i].key]
-              && service.metadata.labels[filters[i].key] === filters[i].value;
+    if (userDefinedNamespace !== "*") {
+      const response = await client.listNamespacedService(userDefinedNamespace);
 
-            if (!isFilterValid) {
-              return false;
-            }
-          }
-          return true;
-        });
-
-        allServices.push(...filteredServices);
-      });
-      return allServices;
+      return extractResponseData(response);
     }
-    const res = await client.listNamespacedService(namespace || "default");
-    return res.body.items;
+
+    const namespacesResponse = await client.listNamespace();
+    const namespaces = extractResponseData(namespacesResponse);
+
+    const namespacesWithServicesPromises = namespaces.map(
+      (namespace) => client.listNamespacedService(namespace.metadata.name),
+    );
+
+    const namespacesWithServicesResults = await Promise.all(namespacesWithServicesPromises);
+    const namespacesWithServices = namespacesWithServicesResults.map(
+      (result) => extractResponseData(result),
+    );
+
+    const allFilteredServices = namespacesWithServices.map(
+      (namespaceServices) => namespaceServices.filter(
+        (service) => filters.every(
+          (filter) => service.metadata.labels
+            && service.metadata.labels[filter.key]
+            && service.metadata.labels[filter.key] === filter.value,
+        ),
+      ),
+    ).flat();
+
+    return allFilteredServices;
   } catch (err) {
     throw parseError(err);
   }
