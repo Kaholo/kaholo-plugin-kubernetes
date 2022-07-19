@@ -1,5 +1,7 @@
 const { bootstrap } = require("@kaholo/plugin-library");
 const { CoreV1Api, KubernetesObjectApi } = require("@kubernetes/client-node");
+const yaml = require("js-yaml");
+const fs = require("fs");
 
 const k8sFunctions = require("./k8s-functions");
 const k8sClient = require("./k8s-client");
@@ -16,13 +18,35 @@ async function apply(params) {
     namespace,
   } = params;
 
+  const specs = yaml.loadAll(
+    fs.readFileSync(yamlPath),
+  ).filter(
+    (s) => s && s.kind && s.metadata,
+  );
+
   const client = k8sClient.create(KubernetesObjectApi, {
     kubeCertificate,
     kubeApiServer,
     kubeToken,
   });
 
-  return k8sFunctions.apply(client, { yamlPath, namespace });
+  const specProcessingPromises = specs
+    .map((spec) => k8sFunctions.apply(client, { spec, namespace }));
+  const creationResults = await Promise.allSettled(specProcessingPromises);
+
+  if (creationResults.some((result) => result.status === "rejected")) {
+    // eslint-disable-next-line no-throw-literal
+    throw {
+      successes: creationResults
+        .filter((result) => result.status === "fulfilled")
+        .map((result) => result.value),
+      failures: creationResults
+        .filter((result) => result.status === "rejected")
+        .map((result) => result.reason),
+    };
+  }
+
+  return creationResults.map((result) => result.value);
 }
 
 async function deleteObjects(params) {
@@ -34,7 +58,7 @@ async function deleteObjects(params) {
     namespace,
   } = params;
 
-  const deletionPromises = objectsMap.map((mapping) => {
+  const objectsMapDeletionPromises = objectsMap.map((mapping) => {
     const [type, name] = mapping.split(" ");
 
     const functionName = mapResourceTypeToDeleteFunctionName(type);
@@ -48,28 +72,43 @@ async function deleteObjects(params) {
 
     validateNamespace(namespace, client[functionName], type);
 
-    return k8sFunctions.deleteObject(client, {
-      functionName,
-      namespace,
-    });
+    return {
+      type,
+      name,
+      promise: k8sFunctions.deleteObject(client, {
+        functionName,
+        namespace,
+      }),
+    };
   });
 
-  const [deleted, failed] = [[], []];
-  const results = await Promise.all(deletionPromises);
-  results.forEach((deleteObj) => {
-    if (deleteObj.err) {
-      failed.push(deleteObj);
-    } else {
-      deleted.push(deleteObj);
-    }
-  });
+  const results = await Promise.allSettled(objectsMapDeletionPromises.map((map) => map.promise));
 
-  const returnVal = { deleted, failed };
-  if (failed.length > 0 || deleted.length === 0) {
-    throw returnVal;
+  if (results.some((result) => result.prmise.status === "rejected")) {
+    const successes = results
+      .filter((result) => result.promise.status === "fulfilled")
+      .map((result) => ({
+        ...result,
+        value: result.promise.value,
+      }));
+    const failures = results
+      .filter((result) => result.promise.status === "rejected")
+      .map((result) => ({
+        ...result,
+        error: result.promise.reason,
+      }));
+
+    // eslint-disable-next-line no-throw-literal
+    throw {
+      successes,
+      failures,
+    };
   }
 
-  return returnVal;
+  return results.map((result) => ({
+    ...result,
+    value: result.promise.value,
+  }));
 }
 
 async function getService(params) {

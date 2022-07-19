@@ -8,10 +8,10 @@ function validateNamespace(namespace, deleteFunction, objectType) {
   }
 }
 
-async function applyBySpec(client, spec) {
+async function applySpec(client, spec) {
   try {
     await client.read(spec);
-  } catch (err) {
+  } catch (error) {
     return client.create(spec);
   }
   return client.patch(spec);
@@ -41,7 +41,7 @@ function decodeBase64(content) {
 
 module.exports = {
   validateNamespace,
-  applyBySpec,
+  applySpec,
   extractResponseData,
   parseError,
   decodeBase64,

@@ -1,35 +1,30 @@
-const yaml = require("js-yaml");
-const fs = require("fs");
-
 const {
-  applyBySpec,
+  applySpec,
   extractResponseData,
   parseError,
 } = require("./helpers");
 
-async function apply(client, { yamlPath, namespace }) {
-  const specs = yaml.loadAll(fs.readFileSync(yamlPath)).filter((s) => s && s.kind && s.metadata);
+async function apply(client, { spec, namespace }) {
+  const adjustedSpec = {
+    ...spec,
+    metadata: {
+      ...spec.metadata,
+      annotations: spec.metadata.annotations || {},
+    },
+  };
 
-  const created = [];
-  for (const spec of specs) {
-    if (namespace && !spec.metadata.namespace && spec.kind !== "Namespace") {
-      spec.metadata.namespace = namespace;
-    }
-
-    spec.metadata.annotations = spec.metadata.annotations || {};
-    delete spec.metadata.annotations["kubectl.kubernetes.io/last-applied-configuration"];
-    spec.metadata.annotations["kubectl.kubernetes.io/last-applied-configuration"] = JSON.stringify(spec);
-
-    try {
-      const response = await applyBySpec(client, spec);
-      created.push(response.body);
-    } catch (err) {
-      created.push(parseError(err));
-      throw created;
-    }
+  if (namespace && !spec.metadata.namespace && spec.kind !== "Namespace") {
+    adjustedSpec.metadata.namespace = namespace;
   }
 
-  return created;
+  adjustedSpec.metadata.annotations["kubectl.kubernetes.io/last-applied-configuration"] = JSON.stringify(adjustedSpec);
+
+  try {
+    const response = await applySpec(client, adjustedSpec);
+    return response.body;
+  } catch (err) {
+    return parseError(err);
+  }
 }
 
 async function deleteObject(client, {
@@ -38,33 +33,20 @@ async function deleteObject(client, {
   objectName,
   namespace,
 }) {
-  let result;
-  try {
-    result = namespace
-      ? await client[functionName](objectName, namespace)
-      : await client[functionName](objectName);
-  } catch (error) {
-    const deletionInfo = {
-      objectType,
-      objectName,
-      err: JSON.stringify(parseError(error)),
-    };
-
-    if (namespace) {
-      deletionInfo.namespace = namespace;
-    }
-
-    return deletionInfo;
-  }
-
   const deletionInfo = {
     objectType,
     objectName,
-    result: JSON.stringify(result.body),
+    namespace: namespace || "default",
   };
 
-  if (namespace) {
-    deletionInfo.namespace = namespace;
+  try {
+    const result = namespace
+      ? await client[functionName](objectName, namespace)
+      : await client[functionName](objectName);
+
+    deletionInfo.result = JSON.stringify(result.body);
+  } catch (error) {
+    deletionInfo.error = JSON.stringify(parseError(error));
   }
 
   return deletionInfo;
