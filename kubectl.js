@@ -1,5 +1,6 @@
 const util = require("util");
 const exec = util.promisify(require("child_process").exec);
+const path = require("path");
 const {
   docker,
 } = require("@kaholo/plugin-library");
@@ -36,6 +37,12 @@ async function runCommand(params) {
   const userName = `user_${generateRandomString()}`;
   const contextName = `context_${generateRandomString()}`;
 
+  const workingDirectoryVolumeDefinition = docker.createVolumeDefinition(path.resolve("./"));
+  // eslint-disable-next-line max-len
+  shellEnvironmentalVariables[workingDirectoryVolumeDefinition.path.name] = workingDirectoryVolumeDefinition.path.value;
+  // eslint-disable-next-line max-len
+  shellEnvironmentalVariables[workingDirectoryVolumeDefinition.mountPoint.name] = workingDirectoryVolumeDefinition.mountPoint.value;
+
   // TODO Check if KUBECONFIG is set and reuse it if it is
   // First command doesn't need kubectl prefix
   const aggregatedCommand = `\
@@ -52,9 +59,9 @@ ${sanitizeCommand(usersCommand)}\
     command: aggregatedCommand,
     image: KUBECTL_IMAGE_NAME,
     additionalArguments: ["--entrypoint", "\"\""], // ignores default entrypoint and allows to call any command
+    volumeDefinitionsArray: [workingDirectoryVolumeDefinition],
+    workingDirectory: `$${workingDirectoryVolumeDefinition.mountPoint.name}`,
   });
-
-  //console.log("EXECUTING", dockerCommand, JSON.stringify(shellEnvironmentalVariables));
 
   const {
     stdout,
