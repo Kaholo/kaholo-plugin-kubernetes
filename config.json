@@ -25,6 +25,14 @@
     "eks",
     "kubectl"
   ],
+  "settings": [
+    {
+      "name": "namespace",
+      "viewName": "Namespace",
+      "type": "string",
+      "placeholder": "default"
+    }
+  ],
   "auth": {
     "authId": "kubernetesServiceAccountWithToken",
     "params": [
