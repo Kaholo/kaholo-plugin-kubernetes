@@ -39,10 +39,15 @@ function decodeBase64(content) {
   return Buffer.from(content, "base64").toString("utf-8");
 }
 
+function generateRandomString() {
+  return Math.random().toString(36).slice(2);
+}
+
 module.exports = {
   validateNamespace,
   applySpec,
   extractResponseData,
   parseError,
   decodeBase64,
+  generateRandomString,
 };
