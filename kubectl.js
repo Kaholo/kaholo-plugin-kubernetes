@@ -47,11 +47,11 @@ async function runCommand(params) {
   // First command doesn't need kubectl prefix
   const aggregatedCommand = `\
 sh -c "\
-kubectl config set-cluster ${clusterName} --server=$${environmentalVariablesNames.kubeApiServer} && \
-kubectl config set clusters.${clusterName}.certificate-authority-data $${environmentalVariablesNames.kubeCertificate} && \
-kubectl config set-context ${contextName} --cluster=${clusterName} --user=${userName} --namespace=$${environmentalVariablesNames.namespace} && \
-kubectl config set current-context ${contextName} && \
-kubectl config set-credentials ${userName} --token=$${environmentalVariablesNames.kubeToken} && \
+kubectl config set-cluster ${clusterName} --server=$${environmentalVariablesNames.kubeApiServer} >/dev/null && \
+kubectl config set clusters.${clusterName}.certificate-authority-data $${environmentalVariablesNames.kubeCertificate} >/dev/null  && \
+kubectl config set-context ${contextName} --cluster=${clusterName} --user=${userName} --namespace=$${environmentalVariablesNames.namespace} >/dev/null && \
+kubectl config set current-context ${contextName} >/dev/null && \
+kubectl config set-credentials ${userName} --token=$${environmentalVariablesNames.kubeToken} >/dev/null && \
 ${sanitizeCommand(usersCommand)}\
 "`;
 
