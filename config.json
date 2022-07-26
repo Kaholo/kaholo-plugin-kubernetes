@@ -27,58 +27,47 @@
   ],
   "settings": [
     {
-      "name": "endpointUrl",
-      "viewName": "Default Endpoint URL",
+      "name": "namespace",
+      "viewName": "Namespace",
       "type": "string",
-      "description": "The endpoint URL used to connect to the cluster",
-      "placeholder": "https://10.0.1.149:443",
-      "learnUrl": "https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/"
-    },
-    {
-      "name": "caCert",
-      "viewName": "Default Certificate Authority",
-      "type": "vault",
-      "description": "The CA cert to use for TLS connections to the cluster",
-      "learnUrl": "https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-certs/"
-    },
-    {
-      "name": "token",
-      "viewName": "Default Service Account Token",
-      "type": "vault",
-      "description": "The kubernetes service account token to use for authentication with the cluster",
-      "learnUrl": "https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/"
+      "placeholder": "default"
     }
   ],
+  "auth": {
+    "authId": "kubernetesServiceAccountWithToken",
+    "params": [
+      {
+        "name": "kubeCertificate",
+        "viewName": "Cluster CA Certificate",
+        "description": "Either PEM or Base64 encoded is acceptable",
+        "type": "string",
+        "required": true,
+        "learnUrl": "https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-certs/"
+      },
+      {
+        "name": "kubeToken",
+        "viewName": "Service Account Token",
+        "description": "A JWT token associated with the service account",
+        "required": true,
+        "type": "vault",
+        "learnUrl": "https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/"
+      },
+      {
+        "name": "kubeApiServer",
+        "viewName": "API Server Endpoint",
+        "required": true,
+        "type": "string",
+        "description": "The endpoint URL used to connect to the cluster",
+        "placeholder": "https://10.0.32.149:443",
+        "learnUrl": "https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/"
+      }
+    ]
+  },
   "methods": [
     {
       "name": "apply",
       "viewName": "Apply",
       "params": [
-        {
-          "name": "endpointUrl",
-          "viewName": "Endpoint URL *",
-          "required": false,
-          "type": "string",
-          "description": "The endpoint URL used to connect to the cluster",
-          "placeholder": "https://10.0.32.149:443",
-          "learnUrl": "https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/"
-        },
-        {
-          "name": "caCert",
-          "viewName": "Certificate Authority *",
-          "required": false,
-          "type": "vault",
-          "description": "The CA cert to use for TLS connections to the cluster",
-          "learnUrl": "https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-certs/"
-        },
-        {
-          "name": "token",
-          "viewName": "Service Account Token *",
-          "required": false,
-          "type": "vault",
-          "description": "The kubernetes service account token to use for authentication with the cluster",
-          "learnUrl": "https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/"
-        },
         {
           "name": "yamlPath",
           "viewName": "Yaml File Path",
@@ -93,7 +82,80 @@
           "viewName": "Namespace",
           "required": false,
           "type": "string",
-          "description": "The namespace name if not \"default\"",
+          "placeholder": "default",
+          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
+        }
+      ]
+    },
+    {
+      "name": "deleteObject",
+      "viewName": "Delete Object",
+      "params": [
+        {
+          "name": "types",
+          "viewName": "Types *",
+          "required": false,
+          "type": "text",
+          "description": "Kubernetes objects are entities that are used to represent the state of the cluster. An object is a “record of intent” - once created, the cluster does its best to ensure it exists as defined. This is known as the cluster's “desired state.”.",
+          "placeholder": "Pods | Namespaces | services | etc.",
+          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/"
+        },
+        {
+          "name": "names",
+          "viewName": "Names *",
+          "required": false,
+          "type": "text",
+          "description": "Each object in your cluster has a Name that is unique for that type of resource.",
+          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/names/"
+        },
+        {
+          "name": "namespace",
+          "viewName": "Namespace",
+          "required": false,
+          "type": "string",
+          "placeholder": "default",
+          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
+        }
+      ]
+    },
+    {
+      "name": "getService",
+      "viewName": "Get Service",
+      "params": [
+        {
+          "name": "name",
+          "viewName": "Name *",
+          "required": false,
+          "type": "string",
+          "description": "The name of the service to describe (or get)",
+          "placeholder": "myservice",
+          "learnUrl": "https://kubernetes.io/docs/concepts/services-networking/service/"
+        },
+        {
+          "name": "namespace",
+          "viewName": "Namespace",
+          "required": false,
+          "type": "string",
+          "placeholder": "default",
+          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
+        }
+      ]
+    },
+    {
+      "name": "getAllServices",
+      "viewName": "Get All Services",
+      "params": [
+        {
+          "name": "labelsFilter",
+          "viewName": "Labels Filter",
+          "description": "Labels to filter the results by. (One per line)",
+          "type": "text"
+        },
+        {
+          "name": "namespace",
+          "viewName": "Namespace",
+          "required": false,
+          "type": "string",
           "placeholder": "default",
           "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
         }
@@ -154,125 +216,16 @@
       ]
     },
     {
-      "name": "deleteObject",
-      "viewName": "Delete Object",
-      "params": [
-        {
-          "name": "endpointUrl",
-          "viewName": "Endpoint URL *",
-          "required": false,
-          "type": "string",
-          "description": "The endpoint URL used to connect to the cluster",
-          "placeholder": "https://10.0.1.149:443",
-          "learnUrl": "https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/"
-        },
-        {
-          "name": "caCert",
-          "viewName": "Certificate Authority *",
-          "required": false,
-          "type": "vault",
-          "description": "The CA cert to use for TLS connections to the cluster",
-          "learnUrl": "https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-certs/"
-        },
-        {
-          "name": "token",
-          "viewName": "Service Account Token *",
-          "required": false,
-          "type": "vault",
-          "description": "The kubernetes service account token to use for authentication with the cluster",
-          "learnUrl": "https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/"
-        },
-        {
-          "name": "types",
-          "viewName": "Types *",
-          "required": false,
-          "type": "text",
-          "description": "Kubernetes objects are entities that are used to represent the state of the cluster. An object is a “record of intent” - once created, the cluster does its best to ensure it exists as defined. This is known as the cluster's “desired state.”.",
-          "placeholder": "Pods | Namespaces | services | etc.",
-          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/"
-        },
-        {
-          "name": "names",
-          "viewName": "Names *",
-          "required": false,
-          "type": "text",
-          "description": "Each object in your cluster has a Name that is unique for that type of resource.",
-          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/names/"
-        },
-        {
-          "name": "namespace",
-          "viewName": "Namespace",
-          "required": false,
-          "type": "string",
-          "description": "The namespace name if not \"default\"",
-          "placeholder": "default",
-          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
-        }
-      ]
-    },
-    {
-      "name": "getService",
-      "viewName": "Get Service",
-      "params": [
-        {
-          "name": "endpointUrl",
-          "viewName": "Endpoint URL *",
-          "required": false,
-          "type": "string",
-          "description": "The endpoint URL used to connect to the cluster",
-          "placeholder": "https://10.0.1.149:443",
-          "learnUrl": "https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/"
-        },
-        {
-          "name": "caCert",
-          "viewName": "Certificate Authority *",
-          "required": false,
-          "type": "vault",
-          "description": "The CA cert to use for TLS connections to the cluster",
-          "learnUrl": "https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-certs/"
-        },
-        {
-          "name": "token",
-          "viewName": "Service Account Token *",
-          "required": false,
-          "type": "vault",
-          "description": "The kubernetes service account token to use for authentication with the cluster",
-          "learnUrl": "https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/"
-        },
-        {
-          "name": "name",
-          "viewName": "Name *",
-          "required": false,
-          "type": "string",
-          "description": "The name of the service to describe (or get)",
-          "placeholder": "myservice",
-          "learnUrl": "https://kubernetes.io/docs/concepts/services-networking/service/"
-        },
-        {
-          "name": "namespace",
-          "viewName": "Namespace",
-          "required": false,
-          "type": "string",
-          "description": "The namespace name if not \"default\"",
-          "placeholder": "default",
-          "learnUrl": "https://kubernetes.io/docs/concepts/services-networking/service/"
-        }
-      ]
-    },
-    {
       "name": "cliGetServices",
       "viewName": "CLI - Get Services",
-      "params": [
-        {
-          "name": "namespace",
-          "viewName": "Namespace",
-          "required": false,
-          "type": "string",
-          "description": "The namespace name if not \"default\"",
-          "placeholder": "default",
-          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
-        }
-      ]
+      "params": [{
+        "name": "namespace",
+        "viewName": "Namespace",
+        "required": false,
+        "type": "string",
+        "placeholder": "default",
+        "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
+      }]
     },
     {
       "name": "cliExposeDeployment",
@@ -310,50 +263,6 @@
     {
       "name": "cliGetPods",
       "viewName": "CLI - Get Pods"
-    },
-    {
-      "name": "getAllServices",
-      "viewName": "Get All Services",
-      "params": [
-        {
-          "name": "endpointUrl",
-          "viewName": "Endpoint URL *",
-          "required": false,
-          "type": "string",
-          "description": "The endpoint URL used to connect to the cluster",
-          "placeholder": "https://10.0.1.149:443",
-          "learnUrl": "https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/"
-        },
-        {
-          "name": "caCert",
-          "viewName": "Certificate Authority *",
-          "required": false,
-          "type": "vault",
-          "description": "The CA cert to use for TLS connections to the cluster",
-          "learnUrl": "https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-certs/"
-        },
-        {
-          "name": "token",
-          "viewName": "Service Account Token *",
-          "required": false,
-          "type": "vault",
-          "description": "The kubernetes service account token to use for authentication with the cluster",
-          "learnUrl": "https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/"
-        },
-        {
-          "name": "namespace",
-          "viewName": "Namespace",
-          "description": "The namespace to search for services in. To search all namespaces use '*'. Default: 'default'",
-          "type": "string",
-          "placeholder": "default"
-        },
-        {
-          "name": "labelsFilter",
-          "viewName": "Labels Filter",
-          "description": "Labels to filter the results by. (One per line)",
-          "type": "text"
-        }
-      ]
     }
   ]
 }
