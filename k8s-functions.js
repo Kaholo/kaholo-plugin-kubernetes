@@ -47,6 +47,8 @@ async function deleteObject(client, {
     deletionInfo.result = JSON.stringify(result.body);
   } catch (error) {
     deletionInfo.error = JSON.stringify(parseError(error));
+
+    throw deletionInfo;
   }
 
   return deletionInfo;

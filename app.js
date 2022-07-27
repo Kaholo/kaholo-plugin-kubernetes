@@ -63,7 +63,7 @@ async function deleteObjects(params) {
 
     const functionName = mapResourceTypeToDeleteFunctionName(type);
 
-    const api = getDeleteApi(type, name);
+    const api = getDeleteApi(type, functionName);
     const client = k8sClient.create(api, {
       kubeCertificate,
       kubeApiServer,
@@ -77,6 +77,8 @@ async function deleteObjects(params) {
       name,
       promise: k8sFunctions.deleteObject(client, {
         functionName,
+        objectType: type,
+        objectName: name,
         namespace,
       }),
     };
@@ -84,19 +86,13 @@ async function deleteObjects(params) {
 
   const results = await Promise.allSettled(objectsMapDeletionPromises.map((map) => map.promise));
 
-  if (results.some((result) => result.prmise.status === "rejected")) {
+  if (results.some((result) => result.status === "rejected")) {
     const successes = results
-      .filter((result) => result.promise.status === "fulfilled")
-      .map((result) => ({
-        ...result,
-        value: result.promise.value,
-      }));
+      .filter((result) => result.status === "fulfilled")
+      .map((result) => result.value);
     const failures = results
-      .filter((result) => result.promise.status === "rejected")
-      .map((result) => ({
-        ...result,
-        error: result.promise.reason,
-      }));
+      .filter((result) => result.status === "rejected")
+      .map((result) => result.reason);
 
     // eslint-disable-next-line no-throw-literal
     throw {
@@ -105,10 +101,7 @@ async function deleteObjects(params) {
     };
   }
 
-  return results.map((result) => ({
-    ...result,
-    value: result.promise.value,
-  }));
+  return results.map((result) => result.value);
 }
 
 async function getService(params) {
