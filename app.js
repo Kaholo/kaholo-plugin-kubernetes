@@ -89,14 +89,10 @@ async function deleteObjects(params) {
   if (results.some((result) => result.status === "rejected")) {
     const successes = results
       .filter((result) => result.status === "fulfilled")
-      .map((result) => ({
-        ...result.value,
-      }));
+      .map((result) => result.value);
     const failures = results
       .filter((result) => result.status === "rejected")
-      .map((result) => ({
-        ...result.reason,
-      }));
+      .map((result) => result.reason);
 
     // eslint-disable-next-line no-throw-literal
     throw {
@@ -105,9 +101,7 @@ async function deleteObjects(params) {
     };
   }
 
-  return results.map((result) => ({
-    ...result.value,
-  }));
+  return results.map((result) => result.value);
 }
 
 async function getService(params) {
