@@ -134,7 +134,7 @@ async function getAllServices(params) {
     kubeCertificate,
     kubeApiServer,
     kubeToken,
-    labelsFilter,
+    labelsFilter = [], // TODO remove when library starts to parse empty text into empty arrays
     namespace,
   } = params;
 
