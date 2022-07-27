@@ -1,11 +1,12 @@
 {
   "name": "Kubernetes",
+  "viewName": "Kubernetes",
   "type": "executer",
   "imgUrl": "logo.png",
   "execProgram": "node",
   "main": "app.js",
   "version": "1.6.4",
-  "description": "Deploy Apps and Manage Kuberentes Clusters with API and/or kubectl",
+  "description": "Deploy Apps and Manage Kuberentes Clusters with client or kubectl",
   "category": [
     "Containers"
   ],
@@ -28,7 +29,7 @@
   "settings": [
     {
       "name": "namespace",
-      "viewName": "Namespace",
+      "viewName": "Default Namespace",
       "type": "string",
       "placeholder": "default"
     }
@@ -58,7 +59,7 @@
         "required": true,
         "type": "string",
         "description": "The endpoint URL used to connect to the cluster",
-        "placeholder": "https://10.0.32.149:443",
+        "placeholder": "https://10.0.32.149",
         "learnUrl": "https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/"
       }
     ]
@@ -70,7 +71,7 @@
       "params": [
         {
           "name": "yamlPath",
-          "viewName": "Yaml File Path",
+          "viewName": "YAML File Path",
           "required": true,
           "type": "string",
           "description": "Path to YAML file on agent",
@@ -83,7 +84,6 @@
           "required": false,
           "type": "string",
           "placeholder": "default",
-          "default": "default",
           "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
         }
       ]
@@ -141,10 +141,11 @@
         {
           "name": "labelsFilter",
           "viewName": "Labels Filter",
-          "description": "Labels to filter the results by. (One per line)",
+          "description": "Labels to filter the results (one key=value pair per line)",
           "required": false,
           "type": "text",
-          "parserType": "array"
+          "parserType": "array",
+          "placeholder": "app=nginx"
         },
         {
           "name": "namespace",
@@ -162,7 +163,7 @@
       "params": [
         {
           "name": "command",
-          "viewName": "command",
+          "viewName": "Command",
           "type": "string",
           "required": true
         },
@@ -172,7 +173,6 @@
           "required": false,
           "type": "string",
           "placeholder": "default",
-          "default": "default",
           "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
         }
       ]
