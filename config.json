@@ -150,9 +150,10 @@
         {
           "name": "namespace",
           "viewName": "Namespace",
-          "required": false,
+          "required": true,
           "type": "string",
           "placeholder": "default",
+          "default": "default",
           "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
         }
       ]

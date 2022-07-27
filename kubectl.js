@@ -31,7 +31,9 @@ async function runCommand(params) {
   shellEnvironmentalVariables[environmentalVariablesNames.kubeCertificate] = kubeCertificate;
   shellEnvironmentalVariables[environmentalVariablesNames.kubeToken] = kubeToken;
   shellEnvironmentalVariables[environmentalVariablesNames.kubeApiServer] = kubeApiServer;
-  shellEnvironmentalVariables[environmentalVariablesNames.namespace] = namespace;
+  if (namespace) {
+    shellEnvironmentalVariables[environmentalVariablesNames.namespace] = namespace;
+  }
 
   const clusterName = `cluster_${generateRandomString()}`;
   const userName = `user_${generateRandomString()}`;
@@ -44,12 +46,13 @@ async function runCommand(params) {
   shellEnvironmentalVariables[workingDirectoryVolumeDefinition.mountPoint.name] = workingDirectoryVolumeDefinition.mountPoint.value;
 
   // TODO Check if KUBECONFIG is set and reuse it if it is
+  const namespaceParam = namespace ? `--namespace=$${environmentalVariablesNames.namespace}` : "";
   // First command doesn't need kubectl prefix
   const aggregatedCommand = `\
 sh -c "\
 kubectl config set-cluster ${clusterName} --server=$${environmentalVariablesNames.kubeApiServer} >/dev/null && \
 kubectl config set clusters.${clusterName}.certificate-authority-data $${environmentalVariablesNames.kubeCertificate} >/dev/null  && \
-kubectl config set-context ${contextName} --cluster=${clusterName} --user=${userName} --namespace=$${environmentalVariablesNames.namespace} >/dev/null && \
+kubectl config set-context ${contextName} --cluster=${clusterName} --user=${userName} ${namespaceParam} >/dev/null && \
 kubectl config set current-context ${contextName} >/dev/null && \
 kubectl config set-credentials ${userName} --token=$${environmentalVariablesNames.kubeToken} >/dev/null && \
 ${sanitizeCommand(usersCommand)}\
