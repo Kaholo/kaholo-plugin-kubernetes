@@ -71,23 +71,25 @@ async function getAllServices(client, { labelsFilter, namespace: userDefinedName
   });
 
   try {
+    let namespacesWithServices = null;
+
     if (userDefinedNamespace !== "*") {
       const response = await client.listNamespacedService(userDefinedNamespace);
 
-      return extractResponseData(response);
+      namespacesWithServices = [extractResponseData(response)];
+    } else {
+      const namespacesResponse = await client.listNamespace();
+      const namespaces = extractResponseData(namespacesResponse);
+
+      const namespacesWithServicesPromises = namespaces.map(
+        (namespace) => client.listNamespacedService(namespace.metadata.name),
+      );
+
+      const namespacesWithServicesResults = await Promise.all(namespacesWithServicesPromises);
+      namespacesWithServices = namespacesWithServicesResults.map(
+        (result) => extractResponseData(result),
+      );
     }
-
-    const namespacesResponse = await client.listNamespace();
-    const namespaces = extractResponseData(namespacesResponse);
-
-    const namespacesWithServicesPromises = namespaces.map(
-      (namespace) => client.listNamespacedService(namespace.metadata.name),
-    );
-
-    const namespacesWithServicesResults = await Promise.all(namespacesWithServicesPromises);
-    const namespacesWithServices = namespacesWithServicesResults.map(
-      (result) => extractResponseData(result),
-    );
 
     const allFilteredServices = namespacesWithServices.map(
       (namespaceServices) => namespaceServices.filter(
