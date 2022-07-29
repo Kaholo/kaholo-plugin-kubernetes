@@ -7,6 +7,7 @@ const {
 
 const {
   generateRandomString,
+  validateCertificate,
 } = require("./helpers");
 
 const KUBECTL_IMAGE_NAME = "bitnami/kubectl";
@@ -27,8 +28,10 @@ async function runCommand(params) {
     namespace,
   } = params;
 
+  const validatedCertificate = validateCertificate(kubeCertificate);
+
   const shellEnvironmentalVariables = {};
-  shellEnvironmentalVariables[environmentalVariablesNames.kubeCertificate] = kubeCertificate;
+  shellEnvironmentalVariables[environmentalVariablesNames.kubeCertificate] = validatedCertificate;
   shellEnvironmentalVariables[environmentalVariablesNames.kubeToken] = kubeToken;
   shellEnvironmentalVariables[environmentalVariablesNames.kubeApiServer] = kubeApiServer;
   if (namespace) {
