@@ -7,7 +7,7 @@ const {
 
 const {
   generateRandomString,
-  validateCertificate,
+  convertCertificateToBase64,
 } = require("./helpers");
 
 const KUBECTL_IMAGE_NAME = "bitnami/kubectl";
@@ -28,7 +28,7 @@ async function runCommand(params) {
     namespace,
   } = params;
 
-  const validatedCertificate = validateCertificate(kubeCertificate);
+  const validatedCertificate = convertCertificateToBase64(kubeCertificate);
 
   const shellEnvironmentalVariables = {};
   shellEnvironmentalVariables[environmentalVariablesNames.kubeCertificate] = validatedCertificate;

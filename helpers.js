@@ -43,7 +43,7 @@ function generateRandomString() {
   return Math.random().toString(36).slice(2);
 }
 
-function validateCertificate(certificate) {
+function convertCertificateToBase64(certificate) {
   if (!certificate.startsWith("-----BEGIN CERTIFICATE-----")) {
     return Buffer.from(certificate, "base64").toString();
   }
@@ -58,5 +58,5 @@ module.exports = {
   parseError,
   decodeBase64,
   generateRandomString,
-  validateCertificate,
+  convertCertificateToBase64,
 };

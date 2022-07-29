@@ -7,7 +7,7 @@ const k8sFunctions = require("./k8s-functions");
 const k8sClient = require("./k8s-client");
 const kubectl = require("./kubectl");
 const { mapResourceTypeToDeleteFunctionName, getDeleteApi } = require("./k8s-delete-utils");
-const { validateNamespace, validateCertificate } = require("./helpers");
+const { validateNamespace, convertCertificateToBase64 } = require("./helpers");
 
 async function apply(params) {
   const {
@@ -25,7 +25,7 @@ async function apply(params) {
   );
 
   const client = k8sClient.create(KubernetesObjectApi, {
-    kubeCertificate: validateCertificate(kubeCertificate),
+    kubeCertificate: convertCertificateToBase64(kubeCertificate),
     kubeApiServer,
     kubeToken,
   });
@@ -68,7 +68,7 @@ async function deleteObjects(params) {
 
     const api = getDeleteApi(type, functionName);
     const client = k8sClient.create(api, {
-      kubeCertificate: validateCertificate(kubeCertificate),
+      kubeCertificate: convertCertificateToBase64(kubeCertificate),
       kubeApiServer,
       kubeToken,
     });
@@ -117,7 +117,7 @@ async function getService(params) {
   } = params;
 
   const client = k8sClient.create(CoreV1Api, {
-    kubeCertificate: validateCertificate(kubeCertificate),
+    kubeCertificate: convertCertificateToBase64(kubeCertificate),
     kubeApiServer,
     kubeToken,
   });
@@ -135,7 +135,7 @@ async function getAllServices(params) {
   } = params;
 
   const client = k8sClient.create(CoreV1Api, {
-    kubeCertificate: validateCertificate(kubeCertificate),
+    kubeCertificate: convertCertificateToBase64(kubeCertificate),
     kubeApiServer,
     kubeToken,
   });
