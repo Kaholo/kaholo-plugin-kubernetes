@@ -31,7 +31,10 @@ async function apply(params) {
   });
 
   const specProcessingPromises = specs
-    .map((spec) => k8sFunctions.apply(client, { spec, namespace }));
+    .map((spec) => k8sFunctions.apply(client, {
+      spec,
+      namespace,
+    }));
   const creationResults = await Promise.allSettled(specProcessingPromises);
 
   if (creationResults.some((result) => result.status === "rejected")) {
