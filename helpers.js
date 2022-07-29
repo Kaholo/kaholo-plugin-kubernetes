@@ -44,8 +44,8 @@ function generateRandomString() {
 }
 
 function convertCertificateToBase64(certificate) {
-  if (!certificate.startsWith("-----BEGIN CERTIFICATE-----")) {
-    return Buffer.from(certificate, "base64").toString();
+  if (certificate.startsWith("-----BEGIN CERTIFICATE-----")) {
+    return Buffer.from(certificate).toString("base64");
   }
 
   return certificate;
