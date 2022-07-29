@@ -28,10 +28,10 @@ async function runCommand(params) {
     namespace,
   } = params;
 
-  const validatedCertificate = convertCertificateToBase64(kubeCertificate);
+  const base64Certificate = convertCertificateToBase64(kubeCertificate);
 
   const shellEnvironmentalVariables = {};
-  shellEnvironmentalVariables[environmentalVariablesNames.kubeCertificate] = validatedCertificate;
+  shellEnvironmentalVariables[environmentalVariablesNames.kubeCertificate] = base64Certificate;
   shellEnvironmentalVariables[environmentalVariablesNames.kubeToken] = kubeToken;
   shellEnvironmentalVariables[environmentalVariablesNames.kubeApiServer] = kubeApiServer;
   if (namespace) {
