@@ -5,7 +5,7 @@
   "imgUrl": "logo.png",
   "execProgram": "node",
   "main": "app.js",
-  "version": "1.6.4",
+  "version": "2.0.0",
   "description": "Deploy Apps and Manage Kuberentes Clusters with client or kubectl",
   "category": [
     "Containers"
