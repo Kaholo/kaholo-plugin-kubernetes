@@ -64,16 +64,28 @@ function getConfig(params) {
 }
 
 function extractServiceAccountName(kubeToken) {
+  const possiblePaths = [
+    ["kubernetes.io/serviceaccount/service-account.name"],
+    ["kubernetes.io", "serviceaccount", "name"],
+  ];
+
   try {
     const decoded = decodeBase64(kubeToken.split(".")[1]);
     const parsed = JSON.parse(decoded);
 
-    const name = parsed["kubernetes.io/serviceaccount/service-account.name"];
-    if (!name) {
+    let serviceAccountName;
+    const isThereValidPath = possiblePaths.some((path) => typeof (
+      path.reduce((acc, cur) => {
+        serviceAccountName = acc[cur] || {};
+        return serviceAccountName;
+      }, parsed)
+    ) === "string");
+
+    if (!isThereValidPath) {
       throw new Error("\"Service Account Name\" was not found in the Access Token.");
     }
 
-    return name;
+    return serviceAccountName;
   } catch (error) {
     throw new Error(`Error occured while extracting the Service Account name from the Access Token. Make sure you pass the valid Access Token. ${error}`);
   }
@@ -81,4 +93,5 @@ function extractServiceAccountName(kubeToken) {
 
 module.exports = {
   create,
+  extractServiceAccountName,
 };
