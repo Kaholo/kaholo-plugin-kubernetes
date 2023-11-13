@@ -22,12 +22,13 @@ const environmentalVariablesNames = {
 async function runCommand(params) {
   const {
     kubeCertificate,
-    kubeToken,
+    eksToken,
     kubeApiServer,
     command: usersCommand,
     namespace,
   } = params;
 
+  const kubeToken = eksToken;
   const base64Certificate = convertCertificateToBase64(kubeCertificate);
 
   const shellEnvironmentalVariables = {};
