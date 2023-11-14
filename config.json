@@ -94,7 +94,6 @@
           "required": false,
           "type": "string",
           "placeholder": "default",
-          "default": "default",
           "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
         }
       ]
@@ -128,7 +127,6 @@
           "required": false,
           "type": "string",
           "placeholder": "default",
-          "default": "default",
           "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
         }
       ]
@@ -162,7 +160,6 @@
           "required": false,
           "type": "string",
           "placeholder": "default",
-          "default": "default",
           "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
         }
       ]
@@ -196,7 +193,6 @@
           "required": false,
           "type": "string",
           "placeholder": "default",
-          "default": "default",
           "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
         }
       ]
@@ -227,7 +223,6 @@
           "required": false,
           "type": "string",
           "placeholder": "default",
-          "default": "default",
           "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
         }
       ]
