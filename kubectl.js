@@ -23,17 +23,18 @@ async function runCommand(params) {
   const {
     kubeCertificate,
     eksToken,
+    kubeToken,
     kubeApiServer,
     command: usersCommand,
     namespace,
   } = params;
 
-  const kubeToken = eksToken;
+  const useToken = eksToken || kubeToken;
   const base64Certificate = convertCertificateToBase64(kubeCertificate);
 
   const shellEnvironmentalVariables = {};
   shellEnvironmentalVariables[environmentalVariablesNames.kubeCertificate] = base64Certificate;
-  shellEnvironmentalVariables[environmentalVariablesNames.kubeToken] = kubeToken;
+  shellEnvironmentalVariables[environmentalVariablesNames.kubeToken] = useToken;
   shellEnvironmentalVariables[environmentalVariablesNames.kubeApiServer] = kubeApiServer;
   if (namespace) {
     shellEnvironmentalVariables[environmentalVariablesNames.namespace] = namespace;
