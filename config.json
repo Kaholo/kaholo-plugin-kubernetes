@@ -86,15 +86,6 @@
           "placeholder": "default",
           "default": "default",
           "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
-        },
-        {
-          "name": "eksToken",
-          "viewName": "EKS Token",
-          "description": "A short-lived token from AWS CLI, e.g. \"aws eks get-token --cluster-name mycluster\"",
-          "required": false,
-          "type": "string",
-          "placeholder": "default",
-          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
         }
       ]
     },
@@ -118,15 +109,6 @@
           "type": "string",
           "placeholder": "default",
           "default": "default",
-          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
-        },
-        {
-          "name": "eksToken",
-          "viewName": "EKS Token",
-          "description": "A short-lived token from AWS CLI, e.g. \"aws eks get-token --cluster-name mycluster\"",
-          "required": false,
-          "type": "string",
-          "placeholder": "default",
           "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
         }
       ]
@@ -152,15 +134,6 @@
           "placeholder": "default",
           "default": "default",
           "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
-        },
-        {
-          "name": "eksToken",
-          "viewName": "EKS Token",
-          "description": "A short-lived token from AWS CLI, e.g. \"aws eks get-token --cluster-name mycluster\"",
-          "required": false,
-          "type": "string",
-          "placeholder": "default",
-          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
         }
       ]
     },
@@ -184,15 +157,6 @@
           "type": "string",
           "placeholder": "default",
           "default": "default",
-          "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
-        },
-        {
-          "name": "eksToken",
-          "viewName": "EKS Token",
-          "description": "A short-lived token from AWS CLI, e.g. \"aws eks get-token --cluster-name mycluster\"",
-          "required": false,
-          "type": "string",
-          "placeholder": "default",
           "learnUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
         }
       ]
